@@ -96,7 +96,7 @@ namespace ChatSharp.Handlers
                     }
                 }
             }
-            client.OnServerInfoRecieved(new SupportsEventArgs(client.ServerInfo));
+            client.OnServerInfoReceived(new SupportsEventArgs(client.ServerInfo));
         }
 
         public static void HandleMyInfo(IrcClient client, IrcMessage message)

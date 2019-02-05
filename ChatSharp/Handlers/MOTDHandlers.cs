@@ -18,12 +18,12 @@ namespace ChatSharp.Handlers
                 throw new IrcProtocolException("372 MOTD message is incorrectly formatted.");
             var part = message.Parameters[1].Substring(2);
             MOTD += part + Environment.NewLine;
-            client.OnMOTDPartRecieved(new ServerMOTDEventArgs(part));
+            client.OnMOTDPartReceived(new ServerMOTDEventArgs(part));
         }
 
         public static void HandleEndOfMOTD(IrcClient client, IrcMessage message)
         {
-            client.OnMOTDRecieved(new ServerMOTDEventArgs(MOTD));
+            client.OnMOTDReceived(new ServerMOTDEventArgs(MOTD));
             client.OnConnectionComplete(new EventArgs());
             // Verify our identity
             VerifyOurIdentity(client);
@@ -32,7 +32,7 @@ namespace ChatSharp.Handlers
 
 	public static void HandleMOTDNotFound(IrcClient client, IrcMessage message)
 	{
-            client.OnMOTDRecieved(new ServerMOTDEventArgs(MOTD));
+            client.OnMOTDReceived(new ServerMOTDEventArgs(MOTD));
             client.OnConnectionComplete(new EventArgs());
 
             VerifyOurIdentity(client);

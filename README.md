@@ -12,7 +12,7 @@ var client = new IrcClient("irc.freenode.net", new IrcUser("ChatSharp", "ChatSha
 
 client.ConnectionComplete += (s, e) => client.JoinChannel("#botwar");
 
-client.ChannelMessageRecieved += (s, e) =>
+client.ChannelMessageReceived += (s, e) =>
 {
     var channel = client.Channels[e.PrivateMessage.Source];
 

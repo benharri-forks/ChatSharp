@@ -58,7 +58,7 @@ namespace ChatSharp
 
         /// <summary>
         /// ChatSharp makes some assumptions about what the server supports in order to function properly.
-        /// If it has not recieved a 005 message giving it accurate information, this value will be true.
+        /// If it has not received a 005 message giving it accurate information, this value will be true.
         /// </summary>
         public bool IsGuess { get; internal set; }
         /// <summary>

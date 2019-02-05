@@ -128,7 +128,7 @@ namespace ChatSharp.Handlers
         public static void HandleUserListEnd(IrcClient client, IrcMessage message)
         {
             var channel = client.Channels[message.Parameters[1]];
-            client.OnChannelListRecieved(new ChannelEventArgs(channel));
+            client.OnChannelListReceived(new ChannelEventArgs(channel));
             if (client.Settings.ModeOnJoin)
             {
                 try

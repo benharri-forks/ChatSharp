@@ -119,17 +119,17 @@ namespace ChatSharp.Handlers
 
         public static void HandleNotice(IrcClient client, IrcMessage message)
         {
-            client.OnNoticeRecieved(new IrcNoticeEventArgs(message));
+            client.OnNoticeReceived(new IrcNoticeEventArgs(message));
         }
 
         public static void HandlePrivmsg(IrcClient client, IrcMessage message)
         {
             var eventArgs = new PrivateMessageEventArgs(client, message, client.ServerInfo);
-            client.OnPrivateMessageRecieved(eventArgs);
+            client.OnPrivateMessageReceived(eventArgs);
             if (eventArgs.PrivateMessage.IsChannelMessage)
-                client.OnChannelMessageRecieved(eventArgs);
+                client.OnChannelMessageReceived(eventArgs);
             else
-                client.OnUserMessageRecieved(eventArgs);
+                client.OnUserMessageReceived(eventArgs);
         }
 
         public static void HandleErronousNick(IrcClient client, IrcMessage message)
