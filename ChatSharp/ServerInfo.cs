@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace ChatSharp
 {
@@ -22,7 +21,7 @@ namespace ChatSharp
         /// </summary>
         public char? GetModeForPrefix(char prefix)
         {
-            if (Prefixes[1].IndexOf(prefix) == -1)
+            if (!Prefixes[1].Contains(prefix))
                 return null;
             return Prefixes[0][Prefixes[1].IndexOf(prefix)];
         }
@@ -35,14 +34,14 @@ namespace ChatSharp
         public List<char?> GetModesForNick(string nick)
         {
             var supportedPrefixes = Prefixes[1];
-            List<char?> modeList = new List<char?>();
-            List<char> nickPrefixes = new List<char>();
+            List<char?> modeList = new();
+            List<char> nickPrefixes = new();
 
             foreach (char prefix in supportedPrefixes)
             {
                 if (nick.Contains(prefix))
                 {
-                    nick.Remove(nick.IndexOf(prefix));
+                    _ = nick.Remove(nick.IndexOf(prefix));
                     if (!nickPrefixes.Contains(prefix))
                     {
                         nickPrefixes.Add(prefix);

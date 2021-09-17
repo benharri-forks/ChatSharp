@@ -1,5 +1,4 @@
 using ChatSharp.Events;
-using System.Linq;
 
 namespace ChatSharp.Handlers
 {
@@ -20,7 +19,7 @@ namespace ChatSharp.Handlers
                 else
                 {
                     key = item.Remove(item.IndexOf('='));
-                    value = item.Substring(item.IndexOf('=') + 1);
+                    value = item[(item.IndexOf('=') + 1)..];
                 }
                 // TODO: Consider doing this differently
                 // TODO: Allow users to specify other things to handle
@@ -29,9 +28,9 @@ namespace ChatSharp.Handlers
                     switch (key.ToUpper())
                     {
                         case "PREFIX":
-                            var modes = value.Substring(1, value.IndexOf(')') - 1);
-                            var prefixes = value.Substring(value.IndexOf(')') + 1);
-                            client.ServerInfo.Prefixes = new[] {modes, prefixes};
+                            var modes = value[1..value.IndexOf(')')];
+                            var prefixes = value[(value.IndexOf(')') + 1)..];
+                            client.ServerInfo.Prefixes = new[] { modes, prefixes };
                             break;
                         case "CHANTYPES":
                             client.ServerInfo.ChannelTypes = value.ToCharArray();
@@ -58,7 +57,7 @@ namespace ChatSharp.Handlers
                             for (int i = 0; i < limits.Length; i++)
                             {
                                 var limitedModes = limits[i].Remove(limits[i].IndexOf(':'));
-                                var limit = int.Parse(limits[i].Substring(limits[i].IndexOf(':') + 1));
+                                var limit = int.Parse(limits[i][(limits[i].IndexOf(':') + 1)..]);
                                 foreach (var mode in limitedModes)
                                     client.ServerInfo.ModeListLimits[i] = new ServerInfo.ModeListLimit(mode, limit);
                             }

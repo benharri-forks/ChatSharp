@@ -14,7 +14,7 @@ namespace ChatSharp
         /// <summary>
         /// The channel topic. Will send a TOPIC command if set.
         /// </summary>
-        public string Topic 
+        public string Topic
         {
             get
             {
@@ -123,8 +123,8 @@ namespace ChatSharp
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            if (obj is IrcChannel)
-                return Equals((IrcChannel)obj);
+            if (obj is IrcChannel channel)
+                return Equals(channel);
             return false;
         }
 

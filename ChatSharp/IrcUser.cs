@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace ChatSharp
@@ -179,8 +178,8 @@ namespace ChatSharp
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (obj is IrcUser)
-                return Equals((IrcUser)obj);
+            if (obj is IrcUser user)
+                return Equals(user);
             return false;
         }
 

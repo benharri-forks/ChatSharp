@@ -17,7 +17,7 @@ namespace ChatSharp.Handlers
                 case "LS":
                     client.IsNegotiatingCapabilities = true;
                     // Parse server capabilities
-                    var serverCapsString = (message.Parameters[2] == "*" ? message.Parameters[3] : message.Parameters[2]);
+                    var serverCapsString = message.Parameters[2] == "*" ? message.Parameters[3] : message.Parameters[2];
                     serverCaps.AddRange(serverCapsString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
 
                     // CAP 3.2 multiline support. Send CAP requests on the last CAP LS line.
@@ -77,7 +77,7 @@ namespace ChatSharp.Handlers
 
                     break;
                 case "LIST":
-                    var activeCapsString = (message.Parameters[2] == "*" ? message.Parameters[3] : message.Parameters[2]);
+                    var activeCapsString = message.Parameters[2] == "*" ? message.Parameters[3] : message.Parameters[2];
                     var activeCaps = activeCapsString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
                     // Check which cap we have that isn't active but the server lists
@@ -104,7 +104,8 @@ namespace ChatSharp.Handlers
 
                     // Disable each recently server-disabled capability
                     disabledCaps.ForEach(
-                        cap => {
+                        cap =>
+                        {
                             if (client.Capabilities.Contains(cap) && client.Capabilities[cap].IsEnabled)
                                 client.Capabilities.Disable(cap);
                         }

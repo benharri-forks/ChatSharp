@@ -13,7 +13,7 @@ namespace ChatSharp
 
         internal IrcProtocolException(string message) : base(message)
         {
-            
+
         }
     }
 }

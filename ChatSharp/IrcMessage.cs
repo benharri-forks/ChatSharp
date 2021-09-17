@@ -40,12 +40,12 @@ namespace ChatSharp
         public IrcMessage(string rawMessage)
         {
             RawMessage = rawMessage;
-            Tags = new KeyValuePair<string, string>[] { };
+            Tags = System.Array.Empty<KeyValuePair<string, string>>();
 
             if (rawMessage.StartsWith("@"))
             {
-                var rawTags = rawMessage.Substring(1, rawMessage.IndexOf(' ') - 1);
-                rawMessage = rawMessage.Substring(rawMessage.IndexOf(' ') + 1);
+                var rawTags = rawMessage[1..rawMessage.IndexOf(' ')];
+                rawMessage = rawMessage[(rawMessage.IndexOf(' ') + 1)..];
 
                 // Parse tags as key value pairs
                 var tags = new List<KeyValuePair<string, string>>();
@@ -53,12 +53,12 @@ namespace ChatSharp
                 {
                     var replacedTag = rawTag.Replace(@"\:", ";");
                     // The spec declares `@a=` as a tag with an empty value, while `@b;` as a tag with a null value
-                    KeyValuePair<string, string> tag = new KeyValuePair<string, string>(replacedTag, null);
+                    KeyValuePair<string, string> tag = new(replacedTag, null);
 
                     if (replacedTag.Contains("="))
                     {
                         string key = replacedTag.Substring(0, replacedTag.IndexOf("="));
-                        string value = replacedTag.Substring(replacedTag.IndexOf("=") + 1);
+                        string value = replacedTag[(replacedTag.IndexOf("=") + 1)..];
                         tag = new KeyValuePair<string, string>(key, value);
                     }
 
@@ -70,21 +70,21 @@ namespace ChatSharp
 
             if (rawMessage.StartsWith(":"))
             {
-                Prefix = rawMessage.Substring(1, rawMessage.IndexOf(' ') - 1);
-                rawMessage = rawMessage.Substring(rawMessage.IndexOf(' ') + 1);
+                Prefix = rawMessage[1..rawMessage.IndexOf(' ')];
+                rawMessage = rawMessage[(rawMessage.IndexOf(' ') + 1)..];
             }
 
             if (rawMessage.Contains(' '))
             {
                 Command = rawMessage.Remove(rawMessage.IndexOf(' '));
-                rawMessage = rawMessage.Substring(rawMessage.IndexOf(' ') + 1);
+                rawMessage = rawMessage[(rawMessage.IndexOf(' ') + 1)..];
                 // Parse parameters
                 var parameters = new List<string>();
                 while (!string.IsNullOrEmpty(rawMessage))
                 {
                     if (rawMessage.StartsWith(":"))
                     {
-                        parameters.Add(rawMessage.Substring(1));
+                        parameters.Add(rawMessage[1..]);
                         break;
                     }
                     if (!rawMessage.Contains(' '))
@@ -94,7 +94,7 @@ namespace ChatSharp
                         break;
                     }
                     parameters.Add(rawMessage.Remove(rawMessage.IndexOf(' ')));
-                    rawMessage = rawMessage.Substring(rawMessage.IndexOf(' ') + 1);
+                    rawMessage = rawMessage[(rawMessage.IndexOf(' ') + 1)..];
                 }
                 Parameters = parameters.ToArray();
             }
@@ -102,7 +102,7 @@ namespace ChatSharp
             {
                 // Violates RFC 1459, but we'll parse it anyway
                 Command = rawMessage;
-                Parameters = new string[0];
+                Parameters = System.Array.Empty<string>();
             }
 
             // Parse server-time message tag.

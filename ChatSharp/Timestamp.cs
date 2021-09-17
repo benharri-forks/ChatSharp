@@ -16,7 +16,7 @@ namespace ChatSharp
         /// A unix epoch representation of the timestamp.
         /// </summary>
         public double UnixTimestamp { get; internal set; }
-        
+
         /// <summary>
         /// Initializes and parses the timestamp received from the server.
         /// </summary>
@@ -41,7 +41,7 @@ namespace ChatSharp
                     throw new ArgumentException("The timestamp string was provided in an invalid format.", date);
 
                 UnixTimestamp = parsedTimestamp;
-                Date = (new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(UnixTimestamp));
+                Date = new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(UnixTimestamp);
             }
         }
 
@@ -58,8 +58,8 @@ namespace ChatSharp
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (obj is Timestamp)
-                return Equals((Timestamp)obj);
+            if (obj is Timestamp timestamp)
+                return Equals(timestamp);
             return false;
         }
 

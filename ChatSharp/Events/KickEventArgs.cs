@@ -30,7 +30,7 @@ namespace ChatSharp
         /// <summary>
         /// The reason provided for the kick (may be null).
         /// </summary>
-        public string Reason { get; set; }   
+        public string Reason { get; set; }
     }
 }
 

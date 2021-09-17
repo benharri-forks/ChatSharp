@@ -10,7 +10,7 @@ namespace ChatSharp
         {
             User = new IrcUser();
             SecondsIdle = -1;
-            Channels = new string[0];
+            Channels = System.Array.Empty<string>();
         }
 
         /// <summary>

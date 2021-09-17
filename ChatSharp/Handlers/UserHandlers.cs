@@ -1,6 +1,6 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ChatSharp.Handlers
 {
@@ -57,7 +57,7 @@ namespace ChatSharp.Handlers
             var channels = message.Parameters[2].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < channels.Length; i++)
                 if (!channels[i].StartsWith("#"))
-                    channels[i] = channels[i].Substring(1);
+                    channels[i] = channels[i][1..];
             whois.Channels = whois.Channels.Concat(channels).ToArray();
         }
 
@@ -67,8 +67,7 @@ namespace ChatSharp.Handlers
             var whois = (WhoIs)request.State;
             if (!client.Users.Contains(whois.User.Nick))
                 client.Users.Add(whois.User);
-            if (request.Callback != null)
-                request.Callback(request);
+            request.Callback?.Invoke(request);
             client.OnWhoIsReceived(new Events.WhoIsReceivedEventArgs(whois));
         }
 
@@ -80,15 +79,18 @@ namespace ChatSharp.Handlers
                 if (query.Key != string.Empty && query.Value != null)
                 {
                     var whoList = (List<ExtendedWho>)client.RequestManager.PeekOperation(query.Key).State;
-                    var who = new ExtendedWho();
-
-                    who.Channel = message.Parameters[1];
-                    who.User.User = message.Parameters[2];
-                    who.IP = message.Parameters[3];
-                    who.Server = message.Parameters[4];
-                    who.User.Nick = message.Parameters[5];
-                    who.Flags = message.Parameters[6];
-
+                    var who = new ExtendedWho
+                    {
+                        Channel = message.Parameters[1],
+                        User = new IrcUser
+                        {
+                            User = message.Parameters[2],
+                            Nick = message.Parameters[5]
+                        },
+                        IP = message.Parameters[3],
+                        Server = message.Parameters[4],
+                        Flags = message.Parameters[6]
+                    };
 
                     var supposedRealName = message.Parameters[7];
 
@@ -96,7 +98,7 @@ namespace ChatSharp.Handlers
                     var hops = supposedRealName.Substring(0, supposedRealName.IndexOf(" "));
                     who.Hops = int.Parse(hops);
 
-                    var realName = supposedRealName.Substring(supposedRealName.IndexOf(" ") + 1);
+                    var realName = supposedRealName[(supposedRealName.IndexOf(" ") + 1)..];
                     who.User.RealName = realName;
 
                     whoList.Add(who);

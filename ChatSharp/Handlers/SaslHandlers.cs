@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Linq;
+using System.Text;
 
 namespace ChatSharp.Handlers
 {
@@ -14,7 +13,7 @@ namespace ChatSharp.Handlers
                 if (message.Parameters[0] == "+")
                 {
                     // Based off irc-framework implementation
-                    var plainString = string.Format("{0}\0{0}\0{1}", client.User.Nick, client.User.Password);
+                    var plainString = $"{client.User.Nick}\0{client.User.Nick}\0{client.User.Password}";
                     var b64Bytes = Encoding.UTF8.GetBytes(Convert.ToBase64String(Encoding.UTF8.GetBytes(plainString)));
 
                     while (b64Bytes.Length >= 400)

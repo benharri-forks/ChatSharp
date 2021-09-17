@@ -1,6 +1,5 @@
-﻿using System;
-using ChatSharp;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 
 namespace ChatSharp.Tests
@@ -13,7 +12,7 @@ namespace ChatSharp.Tests
         {
             try
             {
-                IrcMessage fromMessage = new IrcMessage(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+                IrcMessage fromMessage = new(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
             }
             catch (Exception e)
             {
@@ -24,21 +23,21 @@ namespace ChatSharp.Tests
         [TestMethod]
         public void NewValidMessage_Command()
         {
-            IrcMessage fromMessage = new IrcMessage(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+            IrcMessage fromMessage = new(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
             Assert.AreEqual(fromMessage.Command, "PRIVMSG");
         }
 
         [TestMethod]
         public void NewValidMessage_Prefix()
         {
-            IrcMessage fromMessage = new IrcMessage(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+            IrcMessage fromMessage = new(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
             Assert.AreEqual(fromMessage.Prefix, "user!~ident@host");
         }
 
         [TestMethod]
         public void NewValidMessage_Params()
         {
-            IrcMessage fromMessage = new IrcMessage(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+            IrcMessage fromMessage = new(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
             string[] compareParams = new string[] { "target", "Lorem ipsum dolor sit amet" };
             CollectionAssert.AreEqual(fromMessage.Parameters, compareParams);
         }
@@ -46,7 +45,7 @@ namespace ChatSharp.Tests
         [TestMethod]
         public void NewValidMessage_Tags()
         {
-            IrcMessage fromMessage = new IrcMessage("@a=123;b=456;c=789 :user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+            IrcMessage fromMessage = new("@a=123;b=456;c=789 :user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
             KeyValuePair<string, string>[] compareTags = new KeyValuePair<string, string>[]
             {
                 new KeyValuePair<string, string>("a", "123"),
@@ -59,11 +58,11 @@ namespace ChatSharp.Tests
         [TestMethod]
         public void NewValidMessage_Tags02()
         {
-            IrcMessage fromMessage = new IrcMessage("@aaa=bbb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello");
+            IrcMessage fromMessage = new("@aaa=bbb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello");
             KeyValuePair<string, string>[] compareTags = new KeyValuePair<string, string>[]
             {
                 new KeyValuePair<string, string>("aaa", "bbb"),
-                new KeyValuePair<string, string>("ccc", ""),
+                new KeyValuePair<string, string>("ccc", null),
                 new KeyValuePair<string, string>("example.com/ddd", "eee"),
             };
             CollectionAssert.AreEqual(fromMessage.Tags, compareTags);
@@ -72,7 +71,7 @@ namespace ChatSharp.Tests
         [TestMethod]
         public void NewValidMessage_TagsWithSemicolon()
         {
-            IrcMessage fromMessage = new IrcMessage(@"@a=123\:456;b=456\:789;c=789\:123 :user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+            IrcMessage fromMessage = new(@"@a=123\:456;b=456\:789;c=789\:123 :user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
             KeyValuePair<string, string>[] compareTags = new KeyValuePair<string, string>[]
             {
                 new KeyValuePair<string, string>("a", "123;456"),
@@ -85,7 +84,7 @@ namespace ChatSharp.Tests
         [TestMethod]
         public void NewValidMessage_TagsNoValue()
         {
-            IrcMessage fromMessage = new IrcMessage("@a=;b :nick!ident@host.com PRIVMSG me :Hello");
+            IrcMessage fromMessage = new("@a=;b :nick!ident@host.com PRIVMSG me :Hello");
             KeyValuePair<string, string>[] compareTags = new KeyValuePair<string, string>[]
             {
                 new KeyValuePair<string, string>("a", ""),

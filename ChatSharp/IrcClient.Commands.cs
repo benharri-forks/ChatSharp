@@ -22,7 +22,7 @@ namespace ChatSharp
         {
             const string illegalCharacters = "\r\n\0";
             if (destinations == null || !destinations.Any()) throw new InvalidOperationException("Message must have at least one target.");
-            if (illegalCharacters.Any(message.Contains)) throw new ArgumentException("Illegal characters are present in message.", "message");
+            if (illegalCharacters.Any(message.Contains)) throw new ArgumentException("Illegal characters are present in message.", nameof(message));
             string to = string.Join(",", destinations);
             SendRawMessage("PRIVMSG {0} :{1}{2}", to, PrivmsgPrefix, message);
         }
@@ -34,7 +34,7 @@ namespace ChatSharp
         {
             const string illegalCharacters = "\r\n\0";
             if (destinations == null || !destinations.Any()) throw new InvalidOperationException("Message must have at least one target.");
-            if (illegalCharacters.Any(message.Contains)) throw new ArgumentException("Illegal characters are present in message.", "message");
+            if (illegalCharacters.Any(message.Contains)) throw new ArgumentException("Illegal characters are present in message.", nameof(message));
             string to = string.Join(",", destinations);
             SendRawMessage("PRIVMSG {0} :\x0001ACTION {1}{2}\x0001", to, PrivmsgPrefix, message);
         }
@@ -46,7 +46,7 @@ namespace ChatSharp
         {
             const string illegalCharacters = "\r\n\0";
             if (destinations == null || !destinations.Any()) throw new InvalidOperationException("Message must have at least one target.");
-            if (illegalCharacters.Any(message.Contains)) throw new ArgumentException("Illegal characters are present in message.", "message");
+            if (illegalCharacters.Any(message.Contains)) throw new ArgumentException("Illegal characters are present in message.", nameof(message));
             string to = string.Join(",", destinations);
             SendRawMessage("NOTICE {0} :{1}{2}", to, PrivmsgPrefix, message);
         }
@@ -161,8 +161,7 @@ namespace ChatSharp
             var whois = new WhoIs();
             RequestManager.QueueOperation("WHOIS " + nick, new RequestOperation(whois, ro =>
                 {
-                    if (callback != null)
-                        callback((WhoIs)ro.State);
+                    callback?.Invoke((WhoIs)ro.State);
                 }));
             SendRawMessage("WHOIS {0}", nick);
         }
@@ -224,8 +223,7 @@ namespace ChatSharp
             RequestManager.QueueOperation("MODE " + channel, new RequestOperation(channel, ro =>
                 {
                     var c = Channels[(string)ro.State];
-                    if (callback != null)
-                        callback(c);
+                    callback?.Invoke(c);
                 }));
             SendRawMessage("MODE {0}", channel);
         }
@@ -247,8 +245,7 @@ namespace ChatSharp
             RequestManager.QueueOperation("GETMODE " + mode + " " + channel, new RequestOperation(new MaskCollection(), ro =>
                 {
                     var c = (MaskCollection)ro.State;
-                    if (callback != null)
-                        callback(c);
+                    callback?.Invoke(c);
                 }));
             SendRawMessage("MODE {0} {1}", channel, mode);
         }

@@ -19,7 +19,7 @@ namespace ChatSharp.Events
         /// The original topic.
         /// </summary>
         public string OldTopic { get; set; }
-        
+
         internal ChannelTopicEventArgs(IrcChannel channel, string oldTopic, string topic)
         {
             Channel = channel;

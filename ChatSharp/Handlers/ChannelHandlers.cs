@@ -75,8 +75,8 @@ namespace ChatSharp.Handlers
 
                     // Parse hostmask
                     var nick = hostmask.Substring(0, hostmask.IndexOf("!"));
-                    var ident = hostmask.Substring(nick.Length + 1, hostmask.LastIndexOf("@") - (nick.Length + 1));
-                    var hostname = hostmask.Substring(hostmask.LastIndexOf("@") + 1);
+                    var ident = hostmask[(nick.Length + 1)..hostmask.LastIndexOf("@")];
+                    var hostname = hostmask[(hostmask.LastIndexOf("@") + 1)..];
 
                     // Get user modes
                     var modes = client.ServerInfo.GetModesForNick(nick);
