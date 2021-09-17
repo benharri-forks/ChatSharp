@@ -7,8 +7,7 @@ Supports a lot of RFC 1459 and a little of 2812.
 ## Example Usage
 
 ```csharp
-
-var client = new IrcClient("irc.freenode.net", new IrcUser("ChatSharp", "ChatSharp"));
+var client = new IrcClient("irc.libera.chat", new IrcUser("ChatSharp", "ChatSharp"));
 
 client.ConnectionComplete += (s, e) => client.JoinChannel("#botwar");
 
