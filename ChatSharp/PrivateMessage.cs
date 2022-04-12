@@ -3,7 +3,7 @@ using System.Linq;
 namespace ChatSharp
 {
     /// <summary>
-    /// Represents an IRC message sent from user-to-user or user-to-channel.
+    ///     Represents an IRC message sent from user-to-user or user-to-channel.
     /// </summary>
     public class PrivateMessage
     {
@@ -20,19 +20,22 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// The user that sent this message.
+        ///     The user that sent this message.
         /// </summary>
         public IrcUser User { get; set; }
+
         /// <summary>
-        /// The message text.
+        ///     The message text.
         /// </summary>
         public string Message { get; set; }
+
         /// <summary>
-        /// The source of the message (a nick or a channel name).
+        ///     The source of the message (a nick or a channel name).
         /// </summary>
         public string Source { get; set; }
+
         /// <summary>
-        /// True if this message was posted to a channel.
+        ///     True if this message was posted to a channel.
         /// </summary>
         public bool IsChannelMessage { get; set; }
     }

@@ -1,6 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ChatSharp.Tests
 {
@@ -12,7 +12,7 @@ namespace ChatSharp.Tests
         {
             try
             {
-                IrcMessage fromMessage = new(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+                _ = new IrcMessage(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
             }
             catch (Exception e)
             {
@@ -38,15 +38,16 @@ namespace ChatSharp.Tests
         public void NewValidMessage_Params()
         {
             IrcMessage fromMessage = new(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
-            string[] compareParams = new string[] { "target", "Lorem ipsum dolor sit amet" };
+            var compareParams = new[] { "target", "Lorem ipsum dolor sit amet" };
             CollectionAssert.AreEqual(fromMessage.Parameters, compareParams);
         }
 
         [TestMethod]
         public void NewValidMessage_Tags()
         {
-            IrcMessage fromMessage = new("@a=123;b=456;c=789 :user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
-            KeyValuePair<string, string>[] compareTags = new KeyValuePair<string, string>[]
+            IrcMessage fromMessage =
+                new("@a=123;b=456;c=789 :user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+            var compareTags = new[]
             {
                 new KeyValuePair<string, string>("a", "123"),
                 new KeyValuePair<string, string>("b", "456"),
@@ -59,11 +60,11 @@ namespace ChatSharp.Tests
         public void NewValidMessage_Tags02()
         {
             IrcMessage fromMessage = new("@aaa=bbb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello");
-            KeyValuePair<string, string>[] compareTags = new KeyValuePair<string, string>[]
+            var compareTags = new[]
             {
                 new KeyValuePair<string, string>("aaa", "bbb"),
                 new KeyValuePair<string, string>("ccc", null),
-                new KeyValuePair<string, string>("example.com/ddd", "eee"),
+                new KeyValuePair<string, string>("example.com/ddd", "eee")
             };
             CollectionAssert.AreEqual(fromMessage.Tags, compareTags);
         }
@@ -71,12 +72,13 @@ namespace ChatSharp.Tests
         [TestMethod]
         public void NewValidMessage_TagsWithSemicolon()
         {
-            IrcMessage fromMessage = new(@"@a=123\:456;b=456\:789;c=789\:123 :user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
-            KeyValuePair<string, string>[] compareTags = new KeyValuePair<string, string>[]
+            IrcMessage fromMessage =
+                new(@"@a=123\:456;b=456\:789;c=789\:123 :user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+            var compareTags = new[]
             {
                 new KeyValuePair<string, string>("a", "123;456"),
                 new KeyValuePair<string, string>("b", "456;789"),
-                new KeyValuePair<string, string>("c", "789;123"),
+                new KeyValuePair<string, string>("c", "789;123")
             };
             CollectionAssert.AreEqual(fromMessage.Tags, compareTags);
         }
@@ -85,10 +87,10 @@ namespace ChatSharp.Tests
         public void NewValidMessage_TagsNoValue()
         {
             IrcMessage fromMessage = new("@a=;b :nick!ident@host.com PRIVMSG me :Hello");
-            KeyValuePair<string, string>[] compareTags = new KeyValuePair<string, string>[]
+            var compareTags = new[]
             {
                 new KeyValuePair<string, string>("a", ""),
-                new KeyValuePair<string, string>("b", null),
+                new KeyValuePair<string, string>("b", null)
             };
             CollectionAssert.AreEqual(fromMessage.Tags, compareTags);
         }
@@ -96,12 +98,14 @@ namespace ChatSharp.Tests
         [TestMethod]
         public void Timestamp_CompareISOString()
         {
-            IrcMessage[] messages = {
-                new IrcMessage("@time=2011-10-19T16:40:51.620Z :Angel!angel@example.org PRIVMSG Wiz :Hello"),
-                new IrcMessage("@time=2012-06-30T23:59:59.419Z :John!~john@1.2.3.4 JOIN #chan")
+            IrcMessage[] messages =
+            {
+                new("@time=2011-10-19T16:40:51.620Z :Angel!angel@example.org PRIVMSG Wiz :Hello"),
+                new("@time=2012-06-30T23:59:59.419Z :John!~john@1.2.3.4 JOIN #chan")
             };
 
-            string[] timestamps = {
+            string[] timestamps =
+            {
                 "2011-10-19T16:40:51.620Z",
                 "2012-06-30T23:59:59.419Z"
             };
@@ -113,12 +117,14 @@ namespace ChatSharp.Tests
         [TestMethod]
         public void Timestamp_FromTimestamp()
         {
-            IrcMessage[] messages = {
-                new IrcMessage("@t=1504923966 :Angel!angel@example.org PRIVMSG Wiz :Hello"),
-                new IrcMessage("@t=1504923972 :John!~john@1.2.3.4 JOIN #chan")
+            IrcMessage[] messages =
+            {
+                new("@t=1504923966 :Angel!angel@example.org PRIVMSG Wiz :Hello"),
+                new("@t=1504923972 :John!~john@1.2.3.4 JOIN #chan")
             };
 
-            string[] timestamps = {
+            string[] timestamps =
+            {
                 "2017-09-09T02:26:06.000Z",
                 "2017-09-09T02:26:12.000Z"
             };
@@ -130,7 +136,8 @@ namespace ChatSharp.Tests
         [TestMethod]
         public void Timestamp_FailOnLeap()
         {
-            Assert.ThrowsException<ArgumentException>(() => new IrcMessage("@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan"));
+            Assert.ThrowsException<ArgumentException>(() =>
+                new IrcMessage("@time=2012-06-30T23:59:60.419Z :John!~john@1.2.3.4 JOIN #chan"));
         }
     }
 }

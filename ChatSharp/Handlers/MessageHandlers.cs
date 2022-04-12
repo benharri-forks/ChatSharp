@@ -1,6 +1,5 @@
-using ChatSharp.Events;
-using System.Collections.Generic;
 using System.Linq;
+using ChatSharp.Events;
 
 namespace ChatSharp.Handlers
 {
@@ -66,13 +65,17 @@ namespace ChatSharp.Handlers
             client.SetHandler("005", ServerHandlers.HandleISupport);
 
             // Error replies rfc1459 6.1
-            client.SetHandler("401", ErrorHandlers.HandleError);//ERR_NOSUCHNICK "<nickname> :No such nick/channel"
-            client.SetHandler("402", ErrorHandlers.HandleError);//ERR_NOSUCHSERVER "<server name> :No such server"
-            client.SetHandler("403", ErrorHandlers.HandleError);//ERR_NOSUCHCHANNEL "<channel name> :No such channel"
-            client.SetHandler("404", ErrorHandlers.HandleError);//ERR_CANNOTSENDTOCHAN "<channel name> :Cannot send to channel"
-            client.SetHandler("405", ErrorHandlers.HandleError);//ERR_TOOMANYCHANNELS "<channel name> :You have joined too many \ channels"
-            client.SetHandler("406", ErrorHandlers.HandleError);//ERR_WASNOSUCHNICK "<nickname> :There was no such nickname"
-            client.SetHandler("407", ErrorHandlers.HandleError);//ERR_TOOMANYTARGETS "<target> :Duplicate recipients. No message \
+            client.SetHandler("401", ErrorHandlers.HandleError); //ERR_NOSUCHNICK "<nickname> :No such nick/channel"
+            client.SetHandler("402", ErrorHandlers.HandleError); //ERR_NOSUCHSERVER "<server name> :No such server"
+            client.SetHandler("403", ErrorHandlers.HandleError); //ERR_NOSUCHCHANNEL "<channel name> :No such channel"
+            client.SetHandler("404",
+                ErrorHandlers.HandleError); //ERR_CANNOTSENDTOCHAN "<channel name> :Cannot send to channel"
+            client.SetHandler("405",
+                ErrorHandlers.HandleError); //ERR_TOOMANYCHANNELS "<channel name> :You have joined too many \ channels"
+            client.SetHandler("406",
+                ErrorHandlers.HandleError); //ERR_WASNOSUCHNICK "<nickname> :There was no such nickname"
+            client.SetHandler("407",
+                ErrorHandlers.HandleError); //ERR_TOOMANYTARGETS "<target> :Duplicate recipients. No message \
 
             // Capability handlers
             client.SetHandler("CAP", CapabilityHandlers.HandleCapability);
@@ -92,7 +95,7 @@ namespace ChatSharp.Handlers
             var oldNick = user.Nick;
             user.Nick = message.Parameters[0];
 
-            client.OnNickChanged(new NickChangedEventArgs
+            client.OnNickChanged(new()
             {
                 User = user,
                 OldNick = oldNick,
@@ -106,7 +109,7 @@ namespace ChatSharp.Handlers
             if (client.User.Nick != user.Nick)
             {
                 client.Users.Remove(user);
-                client.OnUserQuit(new UserEventArgs(user));
+                client.OnUserQuit(new(user));
             }
         }
 
@@ -118,7 +121,7 @@ namespace ChatSharp.Handlers
 
         public static void HandleNotice(IrcClient client, IrcMessage message)
         {
-            client.OnNoticeReceived(new IrcNoticeEventArgs(message));
+            client.OnNoticeReceived(new(message));
         }
 
         public static void HandlePrivmsg(IrcClient client, IrcMessage message)
@@ -133,7 +136,7 @@ namespace ChatSharp.Handlers
 
         public static void HandleErronousNick(IrcClient client, IrcMessage message)
         {
-            var eventArgs = new ErronousNickEventArgs(client.User.Nick);
+            var eventArgs = new ErroneousNickEventArgs(client.User.Nick);
             if (message.Command == "433") // Nick in use
                 client.OnNickInUse(eventArgs);
             // else ... TODO
@@ -143,8 +146,8 @@ namespace ChatSharp.Handlers
 
         public static void HandleMode(IrcClient client, IrcMessage message)
         {
-            string target, mode = null;
-            int i = 2;
+            string target, mode;
+            var i = 2;
             if (message.Command == "MODE")
             {
                 target = message.Parameters[0];
@@ -156,50 +159,51 @@ namespace ChatSharp.Handlers
                 mode = message.Parameters[2];
                 i++;
             }
+
             // Handle change
-            bool add = true;
+            var add = true;
             if (target.StartsWith("#"))
             {
                 var channel = client.Channels[target];
                 try
                 {
-                    foreach (char c in mode)
+                    foreach (var c in mode)
                     {
                         if (c == '+')
                         {
                             add = true;
                             continue;
                         }
+
                         if (c == '-')
                         {
                             add = false;
                             continue;
                         }
+
                         if (channel.Mode == null)
                             channel.Mode = string.Empty;
                         // TODO: Support the ones here that aren't done properly
                         if (client.ServerInfo.SupportedChannelModes.ParameterizedSettings.Contains(c))
                         {
-                            client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix),
+                            client.OnModeChanged(new(channel.Name, new(message.Prefix),
                                 (add ? "+" : "-") + c + " " + message.Parameters[i++]));
                         }
                         else if (client.ServerInfo.SupportedChannelModes.ChannelLists.Contains(c))
                         {
-                            client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix),
+                            client.OnModeChanged(new(channel.Name, new(message.Prefix),
                                 (add ? "+" : "-") + c + " " + message.Parameters[i++]));
                         }
                         else if (client.ServerInfo.SupportedChannelModes.ChannelUserModes.Contains(c))
                         {
                             if (!channel.UsersByMode.ContainsKey(c))
-                            {
                                 channel.UsersByMode.Add(c,
-                                    new UserPoolView(channel.Users.Where(u =>
+                                    new(channel.Users.Where(u =>
                                     {
                                         if (!u.ChannelModes.ContainsKey(channel))
-                                            u.ChannelModes.Add(channel, new List<char?>());
+                                            u.ChannelModes.Add(channel, new());
                                         return u.ChannelModes[channel].Contains(c);
                                     })));
-                            }
                             var user = new IrcUser(message.Parameters[i]);
                             if (add)
                             {
@@ -212,9 +216,11 @@ namespace ChatSharp.Handlers
                                 if (channel.UsersByMode[c].Contains(user.Nick))
                                     user.ChannelModes[channel] = null;
                             }
-                            client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix),
+
+                            client.OnModeChanged(new(channel.Name, new(message.Prefix),
                                 (add ? "+" : "-") + c + " " + message.Parameters[i++]));
                         }
+
                         if (client.ServerInfo.SupportedChannelModes.Settings.Contains(c))
                         {
                             if (add)
@@ -223,13 +229,19 @@ namespace ChatSharp.Handlers
                                     channel.Mode += c.ToString();
                             }
                             else
+                            {
                                 channel.Mode = channel.Mode.Replace(c.ToString(), string.Empty);
-                            client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Prefix),
+                            }
+
+                            client.OnModeChanged(new(channel.Name, new(message.Prefix),
                                 (add ? "+" : "-") + c));
                         }
                     }
                 }
-                catch { }
+                catch
+                {
+                }
+
                 if (message.Command == "324")
                 {
                     var operation = client.RequestManager.DequeueOperation("MODE " + channel.Name);
@@ -239,16 +251,16 @@ namespace ChatSharp.Handlers
             else
             {
                 // TODO: Handle user modes other than ourselves?
-                foreach (char c in mode)
-                {
+                foreach (var c in mode)
                     if (add)
                     {
                         if (!client.User.Mode.Contains(c))
                             client.User.Mode += c;
                     }
                     else
+                    {
                         client.User.Mode = client.User.Mode.Replace(c.ToString(), string.Empty);
-                }
+                    }
             }
         }
     }

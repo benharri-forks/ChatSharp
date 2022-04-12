@@ -1,24 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ChatSharp
 {
     /// <summary>
-    /// A pool of users the client is aware of on the network. IrcUser objects in this
-    /// pool are shared across the entire library (e.g. a PrivateMessage will reuse an
-    /// IrcUser object from this poll).
+    ///     A pool of users the client is aware of on the network. IrcUser objects in this
+    ///     pool are shared across the entire library (e.g. a PrivateMessage will reuse an
+    ///     IrcUser object from this poll).
     /// </summary>
     public class UserPool : IEnumerable<IrcUser>
     {
-        private List<IrcUser> Users { get; set; }
-
         internal UserPool()
         {
-            Users = new List<IrcUser>();
+            Users = new();
         }
 
+        private List<IrcUser> Users { get; }
+
         /// <summary>
-        /// Gets the IrcUser with the specified nick.
+        ///     Gets the IrcUser with the specified nick.
         /// </summary>
         public IrcUser this[string nick]
         {
@@ -29,6 +30,19 @@ namespace ChatSharp
                     throw new KeyNotFoundException();
                 return user;
             }
+        }
+
+        /// <summary>
+        ///     Enumerates over the users in this collection.
+        /// </summary>
+        public IEnumerator<IrcUser> GetEnumerator()
+        {
+            return Users.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         internal void Add(IrcUser user)
@@ -50,9 +64,9 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Returns true if any user in the pool matches this mask. Note that not all users
-        /// in the user pool will be fully populated, even if you set ClientSettings.WhoIsOnJoin 
-        /// to true (it takes time to whois everyone in your channels).
+        ///     Returns true if any user in the pool matches this mask. Note that not all users
+        ///     in the user pool will be fully populated, even if you set ClientSettings.WhoIsOnJoin
+        ///     to true (it takes time to whois everyone in your channels).
         /// </summary>
         public bool ContainsMask(string mask)
         {
@@ -60,7 +74,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Returns true if any user in the pool has the specified nick.
+        ///     Returns true if any user in the pool has the specified nick.
         /// </summary>
         public bool Contains(string nick)
         {
@@ -68,7 +82,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Returns true if the given IrcUser is in the pool.
+        ///     Returns true if the given IrcUser is in the pool.
         /// </summary>
         public bool Contains(IrcUser user)
         {
@@ -87,6 +101,7 @@ namespace ChatSharp
                     ret.Hostname = user.Hostname;
                 return ret;
             }
+
             Add(user);
             return user;
         }
@@ -97,19 +112,6 @@ namespace ChatSharp
             if (Contains(user.Nick))
                 return this[user.Nick];
             throw new KeyNotFoundException();
-        }
-
-        /// <summary>
-        /// Enumerates over the users in this collection.
-        /// </summary>
-        public IEnumerator<IrcUser> GetEnumerator()
-        {
-            return Users.GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }

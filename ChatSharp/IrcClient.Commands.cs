@@ -7,7 +7,7 @@ namespace ChatSharp
     public partial class IrcClient
     {
         /// <summary>
-        /// Changes your nick.
+        ///     Changes your nick.
         /// </summary>
         public void Nick(string newNick)
         {
@@ -16,43 +16,49 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Sends a message to one or more destinations (channels or users).
+        ///     Sends a message to one or more destinations (channels or users).
         /// </summary>
         public void SendMessage(string message, params string[] destinations)
         {
             const string illegalCharacters = "\r\n\0";
-            if (destinations == null || !destinations.Any()) throw new InvalidOperationException("Message must have at least one target.");
-            if (illegalCharacters.Any(message.Contains)) throw new ArgumentException("Illegal characters are present in message.", nameof(message));
-            string to = string.Join(",", destinations);
+            if (destinations == null || !destinations.Any())
+                throw new InvalidOperationException("Message must have at least one target.");
+            if (illegalCharacters.Any(message.Contains))
+                throw new ArgumentException("Illegal characters are present in message.", nameof(message));
+            var to = string.Join(",", destinations);
             SendRawMessage("PRIVMSG {0} :{1}{2}", to, PrivmsgPrefix, message);
         }
 
         /// <summary>
-        /// Sends a CTCP action (i.e. "* SirCmpwn waves hello") to one or more destinations.
+        ///     Sends a CTCP action (i.e. "* SirCmpwn waves hello") to one or more destinations.
         /// </summary>
         public void SendAction(string message, params string[] destinations)
         {
             const string illegalCharacters = "\r\n\0";
-            if (destinations == null || !destinations.Any()) throw new InvalidOperationException("Message must have at least one target.");
-            if (illegalCharacters.Any(message.Contains)) throw new ArgumentException("Illegal characters are present in message.", nameof(message));
-            string to = string.Join(",", destinations);
+            if (destinations == null || !destinations.Any())
+                throw new InvalidOperationException("Message must have at least one target.");
+            if (illegalCharacters.Any(message.Contains))
+                throw new ArgumentException("Illegal characters are present in message.", nameof(message));
+            var to = string.Join(",", destinations);
             SendRawMessage("PRIVMSG {0} :\x0001ACTION {1}{2}\x0001", to, PrivmsgPrefix, message);
         }
 
         /// <summary>
-        /// Sends a NOTICE to one or more destinations (channels or users).
+        ///     Sends a NOTICE to one or more destinations (channels or users).
         /// </summary>
         public void SendNotice(string message, params string[] destinations)
         {
             const string illegalCharacters = "\r\n\0";
-            if (destinations == null || !destinations.Any()) throw new InvalidOperationException("Message must have at least one target.");
-            if (illegalCharacters.Any(message.Contains)) throw new ArgumentException("Illegal characters are present in message.", nameof(message));
-            string to = string.Join(",", destinations);
+            if (destinations == null || !destinations.Any())
+                throw new InvalidOperationException("Message must have at least one target.");
+            if (illegalCharacters.Any(message.Contains))
+                throw new ArgumentException("Illegal characters are present in message.", nameof(message));
+            var to = string.Join(",", destinations);
             SendRawMessage("NOTICE {0} :{1}{2}", to, PrivmsgPrefix, message);
         }
 
         /// <summary>
-        /// Leaves the specified channel.
+        ///     Leaves the specified channel.
         /// </summary>
         public void PartChannel(string channel)
         {
@@ -62,7 +68,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Leaves the specified channel, giving a reason for your departure.
+        ///     Leaves the specified channel, giving a reason for your departure.
         /// </summary>
         public void PartChannel(string channel, string reason)
         {
@@ -72,14 +78,14 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Joins the specified channel.
+        ///     Joins the specified channel.
         /// </summary>
         public void JoinChannel(string channel, string key = null)
         {
             if (Channels.Contains(channel))
                 throw new InvalidOperationException("Client is already present in channel.");
 
-            string joinCmd = string.Format("JOIN {0}", channel);
+            var joinCmd = string.Format("JOIN {0}", channel);
             if (!string.IsNullOrEmpty(key))
                 joinCmd += string.Format(" {0}", key);
 
@@ -89,21 +95,19 @@ namespace ChatSharp
             var flags = WhoxField.Nick | WhoxField.Hostname | WhoxField.AccountName | WhoxField.Username;
 
             if (Capabilities.IsEnabled("account-notify"))
-                Who(channel, WhoxFlag.None, flags, (whoList) =>
+                Who(channel, WhoxFlag.None, flags, whoList =>
                 {
                     if (whoList.Count > 0)
-                    {
                         foreach (var whoQuery in whoList)
                         {
                             var user = Users.GetOrAdd(whoQuery.User.Hostmask);
                             user.Account = whoQuery.User.Account;
                         }
-                    }
                 });
         }
 
         /// <summary>
-        /// Sets the topic for the specified channel.
+        ///     Sets the topic for the specified channel.
         /// </summary>
         public void SetTopic(string channel, string topic)
         {
@@ -113,7 +117,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Retrieves the topic for the specified channel.
+        ///     Retrieves the topic for the specified channel.
         /// </summary>
         public void GetTopic(string channel)
         {
@@ -121,7 +125,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Kicks the specified user from the specified channel.
+        ///     Kicks the specified user from the specified channel.
         /// </summary>
         public void KickUser(string channel, string user)
         {
@@ -129,7 +133,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Kicks the specified user from the specified channel.
+        ///     Kicks the specified user from the specified channel.
         /// </summary>
         public void KickUser(string channel, string user, string reason)
         {
@@ -137,7 +141,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Invites the specified user to the specified channel.
+        ///     Invites the specified user to the specified channel.
         /// </summary>
         public void InviteUser(string channel, string user)
         {
@@ -145,7 +149,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Sends a WHOIS query asking for information on the given nick.
+        ///     Sends a WHOIS query asking for information on the given nick.
         /// </summary>
         public void WhoIs(string nick)
         {
@@ -153,22 +157,19 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Sends a WHOIS query asking for information on the given nick, and a callback
-        /// to run when we have received the response.
+        ///     Sends a WHOIS query asking for information on the given nick, and a callback
+        ///     to run when we have received the response.
         /// </summary>
         public void WhoIs(string nick, Action<WhoIs> callback)
         {
             var whois = new WhoIs();
-            RequestManager.QueueOperation("WHOIS " + nick, new RequestOperation(whois, ro =>
-                {
-                    callback?.Invoke((WhoIs)ro.State);
-                }));
+            RequestManager.QueueOperation("WHOIS " + nick, new(whois, ro => { callback?.Invoke((WhoIs)ro.State); }));
             SendRawMessage("WHOIS {0}", nick);
         }
 
         /// <summary>
-        /// Sends an extended WHO query asking for specific information about a single user
-        /// or the users in a channel, and runs a callback when we have received the response.
+        ///     Sends an extended WHO query asking for specific information about a single user
+        ///     or the users in a channel, and runs a callback when we have received the response.
         /// </summary>
         public void Who(string target, WhoxFlag flags, WhoxField fields, Action<List<ExtendedWho>> callback)
         {
@@ -177,38 +178,35 @@ namespace ChatSharp
                 var whox = new List<ExtendedWho>();
 
                 // Generate random querytype for WHO query
-                int queryType = RandomNumber.Next(0, 999);
+                var queryType = RandomNumber.Next(0, 999);
 
                 // Add the querytype field if it wasn't defined
                 var _fields = fields;
                 if ((fields & WhoxField.QueryType) == 0)
                     _fields |= WhoxField.QueryType;
 
-                string whoQuery = string.Format("WHO {0} {1}%{2},{3}", target, flags.AsString(), _fields.AsString(), queryType);
-                string queryKey = string.Format("WHO {0} {1} {2:D}", target, queryType, _fields);
+                var whoQuery = string.Format("WHO {0} {1}%{2},{3}", target, flags.AsString(), _fields.AsString(),
+                    queryType);
+                var queryKey = string.Format("WHO {0} {1} {2:D}", target, queryType, _fields);
 
-                RequestManager.QueueOperation(queryKey, new RequestOperation(whox, ro =>
-                {
-                    callback?.Invoke((List<ExtendedWho>)ro.State);
-                }));
+                RequestManager.QueueOperation(queryKey,
+                    new(whox, ro => { callback?.Invoke((List<ExtendedWho>)ro.State); }));
                 SendRawMessage(whoQuery);
             }
             else
             {
                 var whox = new List<ExtendedWho>();
 
-                string whoQuery = string.Format("WHO {0}", target);
+                var whoQuery = string.Format("WHO {0}", target);
 
-                RequestManager.QueueOperation(whoQuery, new RequestOperation(whox, ro =>
-                {
-                    callback?.Invoke((List<ExtendedWho>)ro.State);
-                }));
+                RequestManager.QueueOperation(whoQuery,
+                    new(whox, ro => { callback?.Invoke((List<ExtendedWho>)ro.State); }));
                 SendRawMessage(whoQuery);
             }
         }
 
         /// <summary>
-        /// Requests the mode of a channel from the server.
+        ///     Requests the mode of a channel from the server.
         /// </summary>
         public void GetMode(string channel)
         {
@@ -216,20 +214,20 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Requests the mode of a channel from the server, and passes it to a callback later.
+        ///     Requests the mode of a channel from the server, and passes it to a callback later.
         /// </summary>
         public void GetMode(string channel, Action<IrcChannel> callback)
         {
-            RequestManager.QueueOperation("MODE " + channel, new RequestOperation(channel, ro =>
-                {
-                    var c = Channels[(string)ro.State];
-                    callback?.Invoke(c);
-                }));
+            RequestManager.QueueOperation("MODE " + channel, new(channel, ro =>
+            {
+                var c = Channels[(string)ro.State];
+                callback?.Invoke(c);
+            }));
             SendRawMessage("MODE {0}", channel);
         }
 
         /// <summary>
-        /// Sets the mode of a target.
+        ///     Sets the mode of a target.
         /// </summary>
         public void ChangeMode(string target, string change)
         {
@@ -237,16 +235,16 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Gets a collection of masks from a channel by a mode. This can be used, for example,
-        /// to get a list of bans.
+        ///     Gets a collection of masks from a channel by a mode. This can be used, for example,
+        ///     to get a list of bans.
         /// </summary>
         public void GetModeList(string channel, char mode, Action<MaskCollection> callback)
         {
-            RequestManager.QueueOperation("GETMODE " + mode + " " + channel, new RequestOperation(new MaskCollection(), ro =>
-                {
-                    var c = (MaskCollection)ro.State;
-                    callback?.Invoke(c);
-                }));
+            RequestManager.QueueOperation("GETMODE " + mode + " " + channel, new(new MaskCollection(), ro =>
+            {
+                var c = (MaskCollection)ro.State;
+                callback?.Invoke(c);
+            }));
             SendRawMessage("MODE {0} {1}", channel, mode);
         }
     }

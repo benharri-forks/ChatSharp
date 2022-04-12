@@ -1,5 +1,3 @@
-using ChatSharp.Events;
-
 namespace ChatSharp.Handlers
 {
     internal static class ServerHandlers
@@ -7,7 +5,7 @@ namespace ChatSharp.Handlers
         public static void HandleISupport(IrcClient client, IrcMessage message)
         {
             if (client.ServerInfo == null)
-                client.ServerInfo = new ServerInfo();
+                client.ServerInfo = new();
             foreach (var item in message.Parameters)
             {
                 string key, value;
@@ -21,10 +19,10 @@ namespace ChatSharp.Handlers
                     key = item.Remove(item.IndexOf('='));
                     value = item[(item.IndexOf('=') + 1)..];
                 }
+
                 // TODO: Consider doing this differently
                 // TODO: Allow users to specify other things to handle
                 if (!string.IsNullOrEmpty(value))
-                {
                     switch (key.ToUpper())
                     {
                         case "PREFIX":
@@ -54,13 +52,14 @@ namespace ChatSharp.Handlers
                         case "MAXLIST":
                             var limits = value.Split(',');
                             client.ServerInfo.ModeListLimits = new ServerInfo.ModeListLimit[limits.Length];
-                            for (int i = 0; i < limits.Length; i++)
+                            for (var i = 0; i < limits.Length; i++)
                             {
                                 var limitedModes = limits[i].Remove(limits[i].IndexOf(':'));
                                 var limit = int.Parse(limits[i][(limits[i].IndexOf(':') + 1)..]);
                                 foreach (var mode in limitedModes)
-                                    client.ServerInfo.ModeListLimits[i] = new ServerInfo.ModeListLimit(mode, limit);
+                                    client.ServerInfo.ModeListLimits[i] = new(mode, limit);
                             }
+
                             break;
                         case "NETWORK":
                             client.ServerInfo.NetworkName = value;
@@ -84,18 +83,16 @@ namespace ChatSharp.Handlers
                             client.ServerInfo.MaxAwayLength = int.Parse(value);
                             break;
                     }
-                }
                 else
-                {
                     switch (key.ToUpper())
                     {
                         case "WHOX":
                             client.ServerInfo.ExtendedWho = true;
                             break;
                     }
-                }
             }
-            client.OnServerInfoReceived(new SupportsEventArgs(client.ServerInfo));
+
+            client.OnServerInfoReceived(new(client.ServerInfo));
         }
 
         public static void HandleMyInfo(IrcClient client, IrcMessage message)
@@ -103,15 +100,11 @@ namespace ChatSharp.Handlers
             // 004 sendak.freenode.net ircd-seven-1.1.3 DOQRSZaghilopswz CFILMPQbcefgijklmnopqrstvz bkloveqjfI
             // TODO: Figure out how to properly handle this message
             if (client.ServerInfo == null)
-                client.ServerInfo = new ServerInfo();
+                client.ServerInfo = new();
             if (message.Parameters.Length >= 5)
-            {
                 foreach (var c in message.Parameters[4])
-                {
                     if (!client.ServerInfo.SupportedChannelModes.ChannelUserModes.Contains(c))
                         client.ServerInfo.SupportedChannelModes.ChannelUserModes += c.ToString();
-                }
-            }
         }
     }
 }

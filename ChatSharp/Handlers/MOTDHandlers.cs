@@ -1,4 +1,3 @@
-using ChatSharp.Events;
 using System;
 
 namespace ChatSharp.Handlers
@@ -18,21 +17,21 @@ namespace ChatSharp.Handlers
                 throw new IrcProtocolException("372 MOTD message is incorrectly formatted.");
             var part = message.Parameters[1][2..];
             MOTD += part + Environment.NewLine;
-            client.OnMOTDPartReceived(new ServerMOTDEventArgs(part));
+            client.OnMOTDPartReceived(new(part));
         }
 
         public static void HandleEndOfMOTD(IrcClient client, IrcMessage message)
         {
-            client.OnMOTDReceived(new ServerMOTDEventArgs(MOTD));
-            client.OnConnectionComplete(new EventArgs());
+            client.OnMOTDReceived(new(MOTD));
+            client.OnConnectionComplete(new());
             // Verify our identity
             VerifyOurIdentity(client);
         }
 
         public static void HandleMOTDNotFound(IrcClient client, IrcMessage message)
         {
-            client.OnMOTDReceived(new ServerMOTDEventArgs(MOTD));
-            client.OnConnectionComplete(new EventArgs());
+            client.OnMOTDReceived(new(MOTD));
+            client.OnConnectionComplete(new());
 
             VerifyOurIdentity(client);
         }
@@ -40,15 +39,13 @@ namespace ChatSharp.Handlers
         private static void VerifyOurIdentity(IrcClient client)
         {
             if (client.Settings.WhoIsOnConnect)
-            {
                 client.WhoIs(client.User.Nick, whois =>
-                    {
-                        client.User.Nick = whois.User.Nick;
-                        client.User.User = whois.User.User;
-                        client.User.Hostname = whois.User.Hostname;
-                        client.User.RealName = whois.User.RealName;
-                    });
-            }
+                {
+                    client.User.Nick = whois.User.Nick;
+                    client.User.User = whois.User.User;
+                    client.User.Hostname = whois.User.Hostname;
+                    client.User.RealName = whois.User.RealName;
+                });
         }
     }
 }

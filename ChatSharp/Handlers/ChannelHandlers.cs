@@ -1,4 +1,3 @@
-using ChatSharp.Events;
 using System;
 using System.Linq;
 using System.Threading;
@@ -20,13 +19,13 @@ namespace ChatSharp.Handlers
 
                 // account-notify capability
                 if (client.Capabilities.IsEnabled("account-notify"))
-                    client.Who(user.Nick, WhoxFlag.None, WhoxField.Nick | WhoxField.AccountName, (whoQuery) =>
+                    client.Who(user.Nick, WhoxFlag.None, WhoxField.Nick | WhoxField.AccountName, whoQuery =>
                     {
                         if (whoQuery.Count == 1)
                             user.Account = whoQuery[0].User.Account;
                     });
 
-                client.OnUserJoinedChannel(new ChannelUserEventArgs(channel, user));
+                client.OnUserJoinedChannel(new(channel, user));
             }
         }
 
@@ -35,7 +34,7 @@ namespace ChatSharp.Handlers
             var channel = client.Channels.GetOrAdd(message.Parameters[1]);
             var old = channel._Topic;
             channel._Topic = message.Parameters[2];
-            client.OnChannelTopicReceived(new ChannelTopicEventArgs(channel, old, channel._Topic));
+            client.OnChannelTopicReceived(new(channel, old, channel._Topic));
         }
 
         public static void HandleGetEmptyTopic(IrcClient client, IrcMessage message)
@@ -43,7 +42,7 @@ namespace ChatSharp.Handlers
             var channel = client.Channels.GetOrAdd(message.Parameters[1]);
             var old = channel._Topic;
             channel._Topic = message.Parameters[2];
-            client.OnChannelTopicReceived(new ChannelTopicEventArgs(channel, old, channel._Topic));
+            client.OnChannelTopicReceived(new(channel, old, channel._Topic));
         }
 
         public static void HandlePart(IrcClient client, IrcMessage message)
@@ -59,7 +58,7 @@ namespace ChatSharp.Handlers
             if (user.ChannelModes.ContainsKey(channel))
                 user.ChannelModes.Remove(channel);
 
-            client.OnUserPartedChannel(new ChannelUserEventArgs(channel, user));
+            client.OnUserPartedChannel(new(channel, user));
         }
 
         public static void HandleUserListPart(IrcClient client, IrcMessage message)
@@ -74,9 +73,9 @@ namespace ChatSharp.Handlers
                         continue;
 
                     // Parse hostmask
-                    var nick = hostmask.Substring(0, hostmask.IndexOf("!"));
-                    var ident = hostmask[(nick.Length + 1)..hostmask.LastIndexOf("@")];
-                    var hostname = hostmask[(hostmask.LastIndexOf("@") + 1)..];
+                    var nick = hostmask.Substring(0, hostmask.IndexOf("!", StringComparison.Ordinal));
+                    var ident = hostmask[(nick.Length + 1)..hostmask.LastIndexOf("@", StringComparison.Ordinal)];
+                    var hostname = hostmask[(hostmask.LastIndexOf("@", StringComparison.Ordinal) + 1)..];
 
                     // Get user modes
                     var modes = client.ServerInfo.GetModesForNick(nick);
@@ -128,19 +127,21 @@ namespace ChatSharp.Handlers
         public static void HandleUserListEnd(IrcClient client, IrcMessage message)
         {
             var channel = client.Channels[message.Parameters[1]];
-            client.OnChannelListReceived(new ChannelEventArgs(channel));
+            client.OnChannelListReceived(new(channel));
             if (client.Settings.ModeOnJoin)
-            {
                 try
                 {
-                    client.GetMode(channel.Name, c => { /* no-op */ });
+                    client.GetMode(channel.Name, _ =>
+                    {
+                        /* no-op */
+                    });
                 }
-                catch { /* who cares */ }
-            }
-            if (client.Settings.WhoIsOnJoin)
-            {
-                Task.Factory.StartNew(() => WhoIsChannel(channel, client, 0));
-            }
+                catch
+                {
+                    /* who cares */
+                }
+
+            if (client.Settings.WhoIsOnJoin) Task.Factory.StartNew(() => WhoIsChannel(channel, client, 0));
         }
 
         private static void WhoIsChannel(IrcChannel channel, IrcClient client, int index)
@@ -148,13 +149,13 @@ namespace ChatSharp.Handlers
             // Note: joins and parts that happen during this will cause strange behavior here
             Thread.Sleep(client.Settings.JoinWhoIsDelay * 1000);
             var user = channel.Users[index];
-            client.WhoIs(user.Nick, (whois) =>
-                {
-                    user.User = whois.User.User;
-                    user.Hostname = whois.User.Hostname;
-                    user.RealName = whois.User.RealName;
-                    Task.Factory.StartNew(() => WhoIsChannel(channel, client, index + 1));
-                });
+            client.WhoIs(user.Nick, whois =>
+            {
+                user.User = whois.User.User;
+                user.Hostname = whois.User.Hostname;
+                user.RealName = whois.User.RealName;
+                Task.Factory.StartNew(() => WhoIsChannel(channel, client, index + 1));
+            });
         }
 
         public static void HandleKick(IrcClient client, IrcMessage message)
@@ -163,7 +164,7 @@ namespace ChatSharp.Handlers
             var kicked = channel.Users[message.Parameters[1]];
             if (kicked.Channels.Contains(channel))
                 kicked.Channels.Remove(channel);
-            client.OnUserKicked(new KickEventArgs(channel, new IrcUser(message.Prefix),
+            client.OnUserKicked(new(channel, new(message.Prefix),
                 kicked, message.Parameters[2]));
         }
     }

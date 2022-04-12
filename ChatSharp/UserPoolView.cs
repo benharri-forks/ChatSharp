@@ -1,22 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ChatSharp
 {
     /// <summary>
-    /// A filtered view of the user pool.
+    ///     A filtered view of the user pool.
     /// </summary>
     public class UserPoolView : IEnumerable<IrcUser>
     {
-        private IEnumerable<IrcUser> Users { get; set; }
-
         internal UserPoolView(IEnumerable<IrcUser> users)
         {
             Users = users;
         }
 
+        private IEnumerable<IrcUser> Users { get; }
+
         /// <summary>
-        /// Gets the IrcUser with the specified nick.
+        ///     Gets the IrcUser with the specified nick.
         /// </summary>
         public IrcUser this[string nick]
         {
@@ -29,18 +30,25 @@ namespace ChatSharp
             }
         }
 
-        internal IrcUser this[int index]
+        internal IrcUser this[int index] => Users.ToList()[index];
+
+        /// <summary>
+        ///     Enumerates over the users in this collection (with the filter applied).
+        /// </summary>
+        public IEnumerator<IrcUser> GetEnumerator()
         {
-            get
-            {
-                return Users.ToList()[index];
-            }
+            return Users.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
 
         /// <summary>
-        /// Returns true if any user in the pool matches this mask. Note that not all users
-        /// in the user pool will be fully populated, even if you set ClientSettings.WhoIsOnJoin 
-        /// to true (it takes time to whois everyone in your channels).
+        ///     Returns true if any user in the pool matches this mask. Note that not all users
+        ///     in the user pool will be fully populated, even if you set ClientSettings.WhoIsOnJoin
+        ///     to true (it takes time to whois everyone in your channels).
         /// </summary>
         public bool ContainsMask(string mask)
         {
@@ -48,7 +56,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Returns true if any user in the pool has the specified nick.
+        ///     Returns true if any user in the pool has the specified nick.
         /// </summary>
         public bool Contains(string nick)
         {
@@ -56,25 +64,11 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Returns true if the given IrcUser is in the pool.
+        ///     Returns true if the given IrcUser is in the pool.
         /// </summary>
         public bool Contains(IrcUser user)
         {
             return Users.Any(u => u.Hostmask == user.Hostmask);
         }
-
-        /// <summary>
-        /// Enumerates over the users in this collection (with the filter applied).
-        /// </summary>
-        public IEnumerator<IrcUser> GetEnumerator()
-        {
-            return Users.GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
     }
 }
-

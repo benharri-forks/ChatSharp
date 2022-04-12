@@ -3,7 +3,7 @@ using System;
 namespace ChatSharp
 {
     /// <summary>
-    /// Raised when the server complains about IRC protocol errors.
+    ///     Raised when the server complains about IRC protocol errors.
     /// </summary>
     public class IrcProtocolException : Exception
     {
@@ -13,7 +13,6 @@ namespace ChatSharp
 
         internal IrcProtocolException(string message) : base(message)
         {
-
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace ChatSharp
 {
     /// <summary>
-    /// Information provided by the server about its featureset.
+    ///     Information provided by the server about its featureset.
     /// </summary>
     public class ServerInfo
     {
@@ -11,13 +11,94 @@ namespace ChatSharp
         {
             // Guess for some defaults
             Prefixes = new[] { "ovhaq", "@+%&~" };
-            SupportedChannelModes = new ChannelModes();
+            SupportedChannelModes = new();
             IsGuess = true;
             ExtendedWho = false;
         }
 
         /// <summary>
-        /// Gets the mode for a given channel user list prefix.
+        ///     ChatSharp makes some assumptions about what the server supports in order to function properly.
+        ///     If it has not received a 005 message giving it accurate information, this value will be true.
+        /// </summary>
+        public bool IsGuess { get; internal set; }
+
+        /// <summary>
+        ///     Nick prefixes for special modes in channel user lists
+        /// </summary>
+        public string[] Prefixes { get; internal set; }
+
+        /// <summary>
+        ///     Supported channel prefixes (i.e. '#')
+        /// </summary>
+        public char[] ChannelTypes { get; internal set; }
+
+        /// <summary>
+        ///     Channel modes supported by this server
+        /// </summary>
+        public ChannelModes SupportedChannelModes { get; set; }
+
+        /// <summary>
+        ///     The maximum number of MODE changes possible with a single command
+        /// </summary>
+        public int? MaxModesPerCommand { get; set; }
+
+        /// <summary>
+        ///     The maximum number of channels a user may join
+        /// </summary>
+        public int? MaxChannelsPerUser { get; set; } // TODO: Support more than just # channels
+
+        /// <summary>
+        ///     Maximum length of user nicks on this server
+        /// </summary>
+        public int? MaxNickLength { get; set; }
+
+        /// <summary>
+        ///     The limits imposed on list modes, such as +b
+        /// </summary>
+        public ModeListLimit[] ModeListLimits { get; set; }
+
+        /// <summary>
+        ///     The name of the network, as identified by the server
+        /// </summary>
+        public string NetworkName { get; set; }
+
+        /// <summary>
+        ///     Set to ban exception character if this server supports ban exceptions
+        /// </summary>
+        public char? SupportsBanExceptions { get; set; }
+
+        /// <summary>
+        ///     Set to invite exception character if this server supports invite exceptions
+        /// </summary>
+        public char? SupportsInviteExceptions { get; set; }
+
+        /// <summary>
+        ///     Set to maximum topic length for this server
+        /// </summary>
+        public int? MaxTopicLength { get; set; }
+
+        /// <summary>
+        ///     Set to the maximum length of a KICK comment
+        /// </summary>
+        public int? MaxKickCommentLength { get; set; }
+
+        /// <summary>
+        ///     Set to the maximum length of a channel name
+        /// </summary>
+        public int? MaxChannelNameLength { get; set; }
+
+        /// <summary>
+        ///     Set to the maximum length of an away message
+        /// </summary>
+        public int? MaxAwayLength { get; set; }
+
+        /// <summary>
+        ///     Server supports WHOX (WHO extension)
+        /// </summary>
+        public bool ExtendedWho { get; set; }
+
+        /// <summary>
+        ///     Gets the mode for a given channel user list prefix.
         /// </summary>
         public char? GetModeForPrefix(char prefix)
         {
@@ -27,8 +108,8 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Gets the channel modes for a given user nick.
-        /// Returns an empty array if user has no modes.
+        ///     Gets the channel modes for a given user nick.
+        ///     Returns an empty array if user has no modes.
         /// </summary>
         /// <returns></returns>
         public List<char?> GetModesForNick(string nick)
@@ -37,8 +118,7 @@ namespace ChatSharp
             List<char?> modeList = new();
             List<char> nickPrefixes = new();
 
-            foreach (char prefix in supportedPrefixes)
-            {
+            foreach (var prefix in supportedPrefixes)
                 if (nick.Contains(prefix))
                 {
                     _ = nick.Remove(nick.IndexOf(prefix));
@@ -50,79 +130,12 @@ namespace ChatSharp
                             modeList.Add(mode);
                     }
                 }
-            }
 
             return modeList;
         }
 
         /// <summary>
-        /// ChatSharp makes some assumptions about what the server supports in order to function properly.
-        /// If it has not received a 005 message giving it accurate information, this value will be true.
-        /// </summary>
-        public bool IsGuess { get; internal set; }
-        /// <summary>
-        /// Nick prefixes for special modes in channel user lists
-        /// </summary>
-        public string[] Prefixes { get; internal set; }
-        /// <summary>
-        /// Supported channel prefixes (i.e. '#')
-        /// </summary>
-        public char[] ChannelTypes { get; internal set; }
-        /// <summary>
-        /// Channel modes supported by this server
-        /// </summary>
-        public ChannelModes SupportedChannelModes { get; set; }
-        /// <summary>
-        /// The maximum number of MODE changes possible with a single command
-        /// </summary>
-        public int? MaxModesPerCommand { get; set; }
-        /// <summary>
-        /// The maximum number of channels a user may join
-        /// </summary>
-        public int? MaxChannelsPerUser { get; set; } // TODO: Support more than just # channels
-        /// <summary>
-        /// Maximum length of user nicks on this server
-        /// </summary>
-        public int? MaxNickLength { get; set; }
-        /// <summary>
-        /// The limits imposed on list modes, such as +b
-        /// </summary>
-        public ModeListLimit[] ModeListLimits { get; set; }
-        /// <summary>
-        /// The name of the network, as identified by the server
-        /// </summary>
-        public string NetworkName { get; set; }
-        /// <summary>
-        /// Set to ban exception character if this server supports ban exceptions
-        /// </summary>
-        public char? SupportsBanExceptions { get; set; }
-        /// <summary>
-        /// Set to invite exception character if this server supports invite exceptions
-        /// </summary>
-        public char? SupportsInviteExceptions { get; set; }
-        /// <summary>
-        /// Set to maximum topic length for this server
-        /// </summary>
-        public int? MaxTopicLength { get; set; }
-        /// <summary>
-        /// Set to the maximum length of a KICK comment
-        /// </summary>
-        public int? MaxKickCommentLength { get; set; }
-        /// <summary>
-        /// Set to the maximum length of a channel name
-        /// </summary>
-        public int? MaxChannelNameLength { get; set; }
-        /// <summary>
-        /// Set to the maximum length of an away message
-        /// </summary>
-        public int? MaxAwayLength { get; set; }
-        /// <summary>
-        /// Server supports WHOX (WHO extension)
-        /// </summary>
-        public bool ExtendedWho { get; set; }
-
-        /// <summary>
-        /// Modes a server supports that are applicable to channels.
+        ///     Modes a server supports that are applicable to channels.
         /// </summary>
         public class ChannelModes
         {
@@ -137,29 +150,33 @@ namespace ChatSharp
             }
 
             /// <summary>
-            /// Modes that are used for lists (i.e. bans).
+            ///     Modes that are used for lists (i.e. bans).
             /// </summary>
             public string ChannelLists { get; internal set; }
+
             /// <summary>
-            /// Modes that can be set on a user of a channel (i.e. ops, voice, etc).
+            ///     Modes that can be set on a user of a channel (i.e. ops, voice, etc).
             /// </summary>
             public string ChannelUserModes { get; set; }
+
             /// <summary>
-            /// Modes that take a parameter (i.e. +k).
+            ///     Modes that take a parameter (i.e. +k).
             /// </summary>
             public string ParameterizedSettings { get; internal set; }
+
             /// <summary>
-            /// Modes that take an optional parameter (i.e. +f).
+            ///     Modes that take an optional parameter (i.e. +f).
             /// </summary>
             public string OptionallyParameterizedSettings { get; internal set; }
+
             /// <summary>
-            /// Modes that change channel settings.
+            ///     Modes that change channel settings.
             /// </summary>
             public string Settings { get; internal set; }
         }
 
         /// <summary>
-        /// Limits imposed on channel lists, such as the maximum bans per channel.
+        ///     Limits imposed on channel lists, such as the maximum bans per channel.
         /// </summary>
         public class ModeListLimit
         {
@@ -170,11 +187,12 @@ namespace ChatSharp
             }
 
             /// <summary>
-            /// The mode character this applies to (i.e. 'b')
+            ///     The mode character this applies to (i.e. 'b')
             /// </summary>
             public char Mode { get; internal set; }
+
             /// <summary>
-            /// The maximum entries for this list.
+            ///     The maximum entries for this list.
             /// </summary>
             public int Maximum { get; internal set; }
         }

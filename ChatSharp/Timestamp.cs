@@ -4,31 +4,24 @@ using System.Globalization;
 namespace ChatSharp
 {
     /// <summary>
-    /// Represents a message timestamp received from a server.
+    ///     Represents a message timestamp received from a server.
     /// </summary>
     public class Timestamp
     {
         /// <summary>
-        /// A date representation of the timestamp.
-        /// </summary>
-        public DateTime Date { get; internal set; }
-        /// <summary>
-        /// A unix epoch representation of the timestamp.
-        /// </summary>
-        public double UnixTimestamp { get; internal set; }
-
-        /// <summary>
-        /// Initializes and parses the timestamp received from the server.
+        ///     Initializes and parses the timestamp received from the server.
         /// </summary>
         /// <param name="date"></param>
-        /// <param name="compatibility">Enable pre-ZNC 1.0 compatibility. In previous versions of the tag,
-        /// servers sent a unix timestamp instead of a ISO 8601 string.</param>
+        /// <param name="compatibility">
+        ///     Enable pre-ZNC 1.0 compatibility. In previous versions of the tag,
+        ///     servers sent a unix timestamp instead of a ISO 8601 string.
+        /// </param>
         internal Timestamp(string date, bool compatibility = false)
         {
             if (!compatibility)
             {
-                DateTime parsedDate;
-                if (!DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out parsedDate))
+                if (!DateTime.TryParse(date, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind,
+                        out var parsedDate))
                     throw new ArgumentException("The date string was provided in an invalid format.", date);
 
                 Date = parsedDate;
@@ -36,8 +29,7 @@ namespace ChatSharp
             }
             else
             {
-                double parsedTimestamp;
-                if (!double.TryParse(date, out parsedTimestamp))
+                if (!double.TryParse(date, out var parsedTimestamp))
                     throw new ArgumentException("The timestamp string was provided in an invalid format.", date);
 
                 UnixTimestamp = parsedTimestamp;
@@ -46,15 +38,25 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// True if this timestamp is equal to another (compares unix timestamps).
+        ///     A date representation of the timestamp.
+        /// </summary>
+        public DateTime Date { get; }
+
+        /// <summary>
+        ///     A unix epoch representation of the timestamp.
+        /// </summary>
+        public double UnixTimestamp { get; }
+
+        /// <summary>
+        ///     True if this timestamp is equal to another (compares unix timestamps).
         /// </summary>
         public bool Equals(Timestamp other)
         {
-            return other.UnixTimestamp == UnixTimestamp;
+            return (int)other.UnixTimestamp == (int)UnixTimestamp;
         }
 
         /// <summary>
-        /// True if this timestamp is equal to another (compares unix timestamps).
+        ///     True if this timestamp is equal to another (compares unix timestamps).
         /// </summary>
         public override bool Equals(object obj)
         {
@@ -64,7 +66,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Returns a ISO 8601 string representation of the timestamp.
+        ///     Returns a ISO 8601 string representation of the timestamp.
         /// </summary>
         public string ToISOString()
         {
@@ -72,7 +74,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Returns the hash code of the unix timestamp.
+        ///     Returns the hash code of the unix timestamp.
         /// </summary>
         public override int GetHashCode()
         {

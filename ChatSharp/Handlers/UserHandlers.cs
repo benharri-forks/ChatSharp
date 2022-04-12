@@ -55,7 +55,7 @@ namespace ChatSharp.Handlers
         {
             var whois = (WhoIs)client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]).State;
             var channels = message.Parameters[2].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < channels.Length; i++)
+            for (var i = 0; i < channels.Length; i++)
                 if (!channels[i].StartsWith("#"))
                     channels[i] = channels[i][1..];
             whois.Channels = whois.Channels.Concat(channels).ToArray();
@@ -68,21 +68,20 @@ namespace ChatSharp.Handlers
             if (!client.Users.Contains(whois.User.Nick))
                 client.Users.Add(whois.User);
             request.Callback?.Invoke(request);
-            client.OnWhoIsReceived(new Events.WhoIsReceivedEventArgs(whois));
+            client.OnWhoIsReceived(new(whois));
         }
 
         public static void HandleWho(IrcClient client, IrcMessage message)
         {
             // A standard WHO request (numeric 352) is just like a WHOX request, except that it has less fields.
             foreach (var query in client.RequestManager.PendingOperations.Where(kvp => kvp.Key.StartsWith("WHO ")))
-            {
                 if (query.Key != string.Empty && query.Value != null)
                 {
                     var whoList = (List<ExtendedWho>)client.RequestManager.PeekOperation(query.Key).State;
                     var who = new ExtendedWho
                     {
                         Channel = message.Parameters[1],
-                        User = new IrcUser
+                        User = new()
                         {
                             User = message.Parameters[2],
                             Nick = message.Parameters[5]
@@ -95,29 +94,28 @@ namespace ChatSharp.Handlers
                     var supposedRealName = message.Parameters[7];
 
                     // Parsing IRC spec craziness: the hops field is included in the real name field
-                    var hops = supposedRealName.Substring(0, supposedRealName.IndexOf(" "));
+                    var hops = supposedRealName[..supposedRealName.IndexOf(" ", StringComparison.Ordinal)];
                     who.Hops = int.Parse(hops);
 
-                    var realName = supposedRealName[(supposedRealName.IndexOf(" ") + 1)..];
+                    var realName = supposedRealName[(supposedRealName.IndexOf(" ", StringComparison.Ordinal) + 1)..];
                     who.User.RealName = realName;
 
                     whoList.Add(who);
                 }
-            }
         }
 
         public static void HandleWhox(IrcClient client, IrcMessage message)
         {
-            int msgQueryType = int.Parse(message.Parameters[1]);
+            var msgQueryType = int.Parse(message.Parameters[1]);
             var whoxQuery = new KeyValuePair<string, RequestOperation>();
 
             foreach (var query in client.RequestManager.PendingOperations.Where(kvp => kvp.Key.StartsWith("WHO ")))
             {
                 // Parse query to retrieve querytype
-                string key = query.Key;
-                string[] queryParts = key.Split(new[] { ' ' });
+                var key = query.Key;
+                var queryParts = key.Split(new[] { ' ' });
 
-                int queryType = int.Parse(queryParts[2]);
+                var queryType = int.Parse(queryParts[2]);
 
                 // Check querytype against message querytype
                 if (queryType == msgQueryType) whoxQuery = query;
@@ -128,12 +126,12 @@ namespace ChatSharp.Handlers
                 var whoxList = (List<ExtendedWho>)client.RequestManager.PeekOperation(whoxQuery.Key).State;
                 var whox = new ExtendedWho();
 
-                string key = whoxQuery.Key;
-                string[] queryParts = key.Split(new[] { ' ' });
+                var key = whoxQuery.Key;
+                var queryParts = key.Split(new[] { ' ' });
 
                 // Handle what fields were included in the WHOX request
-                WhoxField fields = (WhoxField)int.Parse(queryParts[3]);
-                int fieldIdx = 1;
+                var fields = (WhoxField)int.Parse(queryParts[3]);
+                var fieldIdx = 1;
                 do
                 {
                     if ((fields & WhoxField.QueryType) != 0)
@@ -213,8 +211,8 @@ namespace ChatSharp.Handlers
                         whox.User.RealName = message.Parameters[fieldIdx];
                         fieldIdx++;
                     }
-                }
-                while (fieldIdx < message.Parameters.Length - 1);
+                } while (fieldIdx < message.Parameters.Length - 1);
+
                 whoxList.Add(whox);
             }
         }
@@ -228,7 +226,8 @@ namespace ChatSharp.Handlers
         {
             if (client.ServerInfo.ExtendedWho)
             {
-                var query = client.RequestManager.PendingOperations.Where(kvp => kvp.Key.StartsWith("WHO " + message.Parameters[1])).FirstOrDefault();
+                var query = client.RequestManager.PendingOperations
+                    .Where(kvp => kvp.Key.StartsWith("WHO " + message.Parameters[1])).FirstOrDefault();
                 var request = client.RequestManager.DequeueOperation(query.Key);
                 var whoxList = (List<ExtendedWho>)request.State;
 
@@ -237,11 +236,12 @@ namespace ChatSharp.Handlers
                         client.Users.Add(whox.User);
 
                 request.Callback?.Invoke(request);
-                client.OnWhoxReceived(new Events.WhoxReceivedEventArgs(whoxList.ToArray()));
+                client.OnWhoxReceived(new(whoxList.ToArray()));
             }
             else
             {
-                var query = client.RequestManager.PendingOperations.Where(kvp => kvp.Key == "WHO " + message.Parameters[1]).FirstOrDefault();
+                var query = client.RequestManager.PendingOperations
+                    .Where(kvp => kvp.Key == "WHO " + message.Parameters[1]).FirstOrDefault();
                 var request = client.RequestManager.DequeueOperation(query.Key);
                 var whoList = (List<ExtendedWho>)request.State;
 
@@ -250,7 +250,7 @@ namespace ChatSharp.Handlers
                         client.Users.Add(who.User);
 
                 request.Callback?.Invoke(request);
-                client.OnWhoxReceived(new Events.WhoxReceivedEventArgs(whoList.ToArray()));
+                client.OnWhoxReceived(new(whoList.ToArray()));
             }
         }
 

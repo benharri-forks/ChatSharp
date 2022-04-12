@@ -8,10 +8,10 @@ namespace ChatSharp
     {
         public RequestManager()
         {
-            PendingOperations = new Dictionary<string, RequestOperation>();
+            PendingOperations = new();
         }
 
-        internal Dictionary<string, RequestOperation> PendingOperations { get; private set; }
+        internal Dictionary<string, RequestOperation> PendingOperations { get; }
 
         public void QueueOperation(string key, RequestOperation operation)
         {
@@ -22,7 +22,8 @@ namespace ChatSharp
 
         public RequestOperation PeekOperation(string key)
         {
-            var realKey = PendingOperations.Keys.FirstOrDefault(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
+            var realKey =
+                PendingOperations.Keys.FirstOrDefault(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
             return PendingOperations[realKey];
         }
 
@@ -36,13 +37,13 @@ namespace ChatSharp
 
     internal class RequestOperation
     {
-        public object State { get; set; }
-        public Action<RequestOperation> Callback { get; set; }
-
         public RequestOperation(object state, Action<RequestOperation> callback)
         {
             State = state;
             Callback = callback;
         }
+
+        public object State { get; set; }
+        public Action<RequestOperation> Callback { get; set; }
     }
 }

@@ -9,7 +9,6 @@ namespace ChatSharp.Handlers
         public static void HandleAuthentication(IrcClient client, IrcMessage message)
         {
             if (client.IsAuthenticatingSasl)
-            {
                 if (message.Parameters[0] == "+")
                 {
                     // Based off irc-framework implementation
@@ -22,6 +21,7 @@ namespace ChatSharp.Handlers
                         b64Bytes = b64Bytes.Skip(400).ToArray();
                         client.SendRawMessage(string.Format("AUTHENTICATE {0}", Encoding.UTF8.GetString(chunk)));
                     }
+
                     if (b64Bytes.Length > 0)
                         client.SendRawMessage(string.Format("AUTHENTICATE {0}", Encoding.UTF8.GetString(b64Bytes)));
                     else
@@ -29,7 +29,6 @@ namespace ChatSharp.Handlers
 
                     client.IsAuthenticatingSasl = false;
                 }
-            }
         }
 
         public static void HandleError(IrcClient client, IrcMessage message)

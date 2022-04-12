@@ -42,13 +42,11 @@ On Linux/Mac:
 
 On Windows, use Visual Studio or similar and build in Release mode.
 
-Regardless of platform, you'll receive binaries in `ChatSharp/bin/Release/`.
-ChatSharp has no dependencies.
+Regardless of platform, you'll receive binaries in `ChatSharp/bin/Release/`. ChatSharp has no dependencies.
 
 ## Support
 
-Open a [Github issue](https://github.com/SirCmpwn/ChatSharp/issues) describing
-your problem.
+Open a [Github issue](https://github.com/SirCmpwn/ChatSharp/issues) describing your problem.
 
 ## Development / Contributing
 

@@ -1,23 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ChatSharp
 {
     /// <summary>
-    /// A list of capabilities supported by the library, along with the enabled and disabled
-    /// capabilities after negotiating with the server.
+    ///     A list of capabilities supported by the library, along with the enabled and disabled
+    ///     capabilities after negotiating with the server.
     /// </summary>
     public class CapabilityPool : IEnumerable<IrcCapability>
     {
-        private List<IrcCapability> Capabilities { get; set; }
-
         internal CapabilityPool()
         {
-            Capabilities = new List<IrcCapability>();
+            Capabilities = new();
         }
 
+        private List<IrcCapability> Capabilities { get; }
+
         /// <summary>
-        /// Gets the IrcCapability with the specified name.
+        ///     Gets the IrcCapability with the specified name.
         /// </summary>
         public IrcCapability this[string name]
         {
@@ -30,17 +31,48 @@ namespace ChatSharp
             }
         }
 
+        /// <summary>
+        ///     Gets a list of enabled capabilities after negotiating capabilities with the server.
+        /// </summary>
+        /// <returns></returns>
+        internal IEnumerable<string> Enabled
+        {
+            get { return Capabilities.Where(cap => cap.IsEnabled).Select(x => x.Name); }
+        }
+
+        /// <summary>
+        ///     Gets a list of disabled capabilities after negotiating capabilities with the server.
+        /// </summary>
+        /// <returns></returns>
+        internal IEnumerable<string> Disabled
+        {
+            get { return Capabilities.Where(cap => cap.IsEnabled).Select(x => x.Name); }
+        }
+
+        /// <summary>
+        ///     Enumerates over the capabilities in this collection.
+        /// </summary>
+        public IEnumerator<IrcCapability> GetEnumerator()
+        {
+            return Capabilities.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
         internal void Add(string name)
         {
             if (Capabilities.Any(cap => cap.Name == name))
                 return;
 
-            Capabilities.Add(new IrcCapability(name));
+            Capabilities.Add(new(name));
         }
 
         internal void AddRange(IEnumerable<string> range)
         {
-            foreach (string item in range)
+            foreach (var item in range)
                 Add(item);
         }
 
@@ -50,7 +82,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Enables the specified capability.
+        ///     Enables the specified capability.
         /// </summary>
         internal void Enable(string name)
         {
@@ -61,7 +93,7 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Disables the specified capability.
+        ///     Disables the specified capability.
         /// </summary>
         internal void Disable(string name)
         {
@@ -72,35 +104,11 @@ namespace ChatSharp
         }
 
         /// <summary>
-        /// Checks if the specified capability is enabled.
+        ///     Checks if the specified capability is enabled.
         /// </summary>
         internal bool IsEnabled(string name)
         {
             return Capabilities.Any(cap => cap.Name == name && cap.IsEnabled);
-        }
-
-        /// <summary>
-        /// Gets a list of enabled capabilities after negotiating capabilities with the server.
-        /// </summary>
-        /// <returns></returns>
-        internal IEnumerable<string> Enabled
-        {
-            get
-            {
-                return Capabilities.Where(cap => cap.IsEnabled).Select(x => x.Name);
-            }
-        }
-
-        /// <summary>
-        /// Gets a list of disabled capabilities after negotiating capabilities with the server.
-        /// </summary>
-        /// <returns></returns>
-        internal IEnumerable<string> Disabled
-        {
-            get
-            {
-                return Capabilities.Where(cap => cap.IsEnabled).Select(x => x.Name);
-            }
         }
 
         internal bool Contains(string name)
@@ -122,19 +130,6 @@ namespace ChatSharp
 
             Add(name);
             return this[name];
-        }
-
-        /// <summary>
-        /// Enumerates over the capabilities in this collection.
-        /// </summary>
-        public IEnumerator<IrcCapability> GetEnumerator()
-        {
-            return Capabilities.GetEnumerator();
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }
