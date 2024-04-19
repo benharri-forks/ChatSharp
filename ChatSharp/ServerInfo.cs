@@ -11,7 +11,7 @@ namespace ChatSharp
         {
             // Guess for some defaults
             Prefixes = new[] { "ovhaq", "@+%&~" };
-            SupportedChannelModes = new();
+            SupportedChannelModes = new ChannelModes();
             IsGuess = true;
             ExtendedWho = false;
         }
@@ -115,8 +115,8 @@ namespace ChatSharp
         public List<char?> GetModesForNick(string nick)
         {
             var supportedPrefixes = Prefixes[1];
-            List<char?> modeList = new();
-            List<char> nickPrefixes = new();
+            List<char?> modeList = new List<char?>();
+            List<char> nickPrefixes = new List<char>();
 
             foreach (var prefix in supportedPrefixes)
                 if (nick.Contains(prefix))

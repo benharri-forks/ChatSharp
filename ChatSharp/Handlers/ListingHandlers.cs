@@ -8,7 +8,7 @@ namespace ChatSharp.Handlers
             var parameters = parameterString[parameterString.IndexOf(' ')..].Split(' ');
             var request = client.RequestManager.PeekOperation("GETMODE b " + parameters[1]);
             var list = (MaskCollection)request.State;
-            list.Add(new(parameters[2], client.Users.GetOrAdd(parameters[3]),
+            list.Add(new Mask(parameters[2], client.Users.GetOrAdd(parameters[3]),
                 IrcClient.DateTimeFromIrcTime(int.Parse(parameters[4]))));
         }
 
@@ -24,7 +24,7 @@ namespace ChatSharp.Handlers
             var parameters = parameterString[(parameterString.IndexOf(' ') + 1)..].Split(' ');
             var request = client.RequestManager.PeekOperation("GETMODE e " + parameters[1]);
             var list = (MaskCollection)request.State;
-            list.Add(new(parameters[2], client.Users.GetOrAdd(parameters[3]),
+            list.Add(new Mask(parameters[2], client.Users.GetOrAdd(parameters[3]),
                 IrcClient.DateTimeFromIrcTime(int.Parse(parameters[4]))));
         }
 
@@ -40,7 +40,7 @@ namespace ChatSharp.Handlers
             var parameters = parameterString[(parameterString.IndexOf(' ') + 1)..].Split(' ');
             var request = client.RequestManager.PeekOperation("GETMODE I " + parameters[1]);
             var list = (MaskCollection)request.State;
-            list.Add(new(parameters[2], client.Users.GetOrAdd(parameters[3]),
+            list.Add(new Mask(parameters[2], client.Users.GetOrAdd(parameters[3]),
                 IrcClient.DateTimeFromIrcTime(int.Parse(parameters[4]))));
         }
 
@@ -56,7 +56,7 @@ namespace ChatSharp.Handlers
             var parameters = parameterString[(parameterString.IndexOf(' ') + 1)..].Split(' ');
             var request = client.RequestManager.PeekOperation("GETMODE q " + parameters[1]);
             var list = (MaskCollection)request.State;
-            list.Add(new(parameters[2], client.Users.GetOrAdd(parameters[3]),
+            list.Add(new Mask(parameters[2], client.Users.GetOrAdd(parameters[3]),
                 IrcClient.DateTimeFromIrcTime(int.Parse(parameters[4]))));
         }
 

@@ -8,7 +8,7 @@ namespace ChatSharp
     {
         public RequestManager()
         {
-            PendingOperations = new();
+            PendingOperations = new Dictionary<string, RequestOperation>();
         }
 
         internal Dictionary<string, RequestOperation> PendingOperations { get; }

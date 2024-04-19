@@ -12,7 +12,7 @@ namespace ChatSharp.Events
         internal PrivateMessageEventArgs(IrcClient client, IrcMessage ircMessage, ServerInfo serverInfo)
         {
             IrcMessage = ircMessage;
-            PrivateMessage = new(client, IrcMessage, serverInfo);
+            PrivateMessage = new PrivateMessage(client, IrcMessage, serverInfo);
         }
 
         /// <summary>

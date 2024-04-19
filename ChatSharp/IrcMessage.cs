@@ -29,13 +29,13 @@ namespace ChatSharp
                 {
                     var replacedTag = rawTag.Replace(@"\:", ";");
                     // The spec declares `@a=` as a tag with an empty value, while `@b;` as a tag with a null value
-                    KeyValuePair<string, string> tag = new(replacedTag, null);
+                    KeyValuePair<string, string> tag = new KeyValuePair<string, string>(replacedTag, null);
 
                     if (replacedTag.Contains("="))
                     {
                         var key = replacedTag.Substring(0, replacedTag.IndexOf("=", StringComparison.Ordinal));
                         var value = replacedTag[(replacedTag.IndexOf("=", StringComparison.Ordinal) + 1)..];
-                        tag = new(key, value);
+                        tag = new KeyValuePair<string, string>(key, value);
                     }
 
                     tags.Add(tag);
@@ -91,13 +91,13 @@ namespace ChatSharp
             if (Tags.Any(tag => tag.Key == "t"))
             {
                 var tag = Tags.SingleOrDefault(x => x.Key == "t");
-                Timestamp = new(tag.Value, true);
+                Timestamp = new Timestamp(tag.Value, true);
             }
             // server-time tag
             else if (Tags.Any(tag => tag.Key == "time"))
             {
                 var tag = Tags.SingleOrDefault(x => x.Key == "time");
-                Timestamp = new(tag.Value);
+                Timestamp = new Timestamp(tag.Value);
             }
         }
 

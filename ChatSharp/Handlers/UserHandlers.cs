@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ChatSharp.Events;
 
 namespace ChatSharp.Handlers
 {
@@ -68,7 +69,7 @@ namespace ChatSharp.Handlers
             if (!client.Users.Contains(whois.User.Nick))
                 client.Users.Add(whois.User);
             request.Callback?.Invoke(request);
-            client.OnWhoIsReceived(new(whois));
+            client.OnWhoIsReceived(new WhoIsReceivedEventArgs(whois));
         }
 
         public static void HandleWho(IrcClient client, IrcMessage message)
@@ -81,7 +82,7 @@ namespace ChatSharp.Handlers
                     var who = new ExtendedWho
                     {
                         Channel = message.Parameters[1],
-                        User = new()
+                        User = new IrcUser
                         {
                             User = message.Parameters[2],
                             Nick = message.Parameters[5]
@@ -236,7 +237,7 @@ namespace ChatSharp.Handlers
                         client.Users.Add(whox.User);
 
                 request.Callback?.Invoke(request);
-                client.OnWhoxReceived(new(whoxList.ToArray()));
+                client.OnWhoxReceived(new WhoxReceivedEventArgs(whoxList.ToArray()));
             }
             else
             {
@@ -250,7 +251,7 @@ namespace ChatSharp.Handlers
                         client.Users.Add(who.User);
 
                 request.Callback?.Invoke(request);
-                client.OnWhoxReceived(new(whoList.ToArray()));
+                client.OnWhoxReceived(new WhoxReceivedEventArgs(whoList.ToArray()));
             }
         }
 

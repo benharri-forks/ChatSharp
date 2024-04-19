@@ -14,7 +14,7 @@ namespace ChatSharp
         {
             Client = client;
             Name = name;
-            Users = new(client.Users.Where(u => u.Channels.Contains(this)));
+            Users = new UserPoolView(client.Users.Where(u => u.Channels.Contains(this)));
         }
 
         private IrcClient Client { get; }

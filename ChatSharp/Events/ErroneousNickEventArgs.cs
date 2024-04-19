@@ -37,11 +37,11 @@ namespace ChatSharp.Events
         {
             const string nickCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-            _random ??= new();
+            _random ??= new Random();
             var nick = new char[8];
             for (var i = 0; i < nick.Length; i++)
                 nick[i] = nickCharacters[_random.Next(nickCharacters.Length)];
-            return new(nick);
+            return new string(nick);
         }
     }
 }

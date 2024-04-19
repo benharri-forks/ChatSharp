@@ -11,7 +11,7 @@ namespace ChatSharp
     {
         internal MaskCollection()
         {
-            Masks = new();
+            Masks = new List<Mask>();
         }
 
         private List<Mask> Masks { get; }

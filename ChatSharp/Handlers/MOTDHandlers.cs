@@ -1,4 +1,5 @@
 using System;
+using ChatSharp.Events;
 
 namespace ChatSharp.Handlers
 {
@@ -17,21 +18,21 @@ namespace ChatSharp.Handlers
                 throw new IrcProtocolException("372 MOTD message is incorrectly formatted.");
             var part = message.Parameters[1][2..];
             MOTD += part + Environment.NewLine;
-            client.OnMOTDPartReceived(new(part));
+            client.OnMOTDPartReceived(new ServerMOTDEventArgs(part));
         }
 
         public static void HandleEndOfMOTD(IrcClient client, IrcMessage message)
         {
-            client.OnMOTDReceived(new(MOTD));
-            client.OnConnectionComplete(new());
+            client.OnMOTDReceived(new ServerMOTDEventArgs(MOTD));
+            client.OnConnectionComplete(EventArgs.Empty);
             // Verify our identity
             VerifyOurIdentity(client);
         }
 
         public static void HandleMOTDNotFound(IrcClient client, IrcMessage message)
         {
-            client.OnMOTDReceived(new(MOTD));
-            client.OnConnectionComplete(new());
+            client.OnMOTDReceived(new ServerMOTDEventArgs(MOTD));
+            client.OnConnectionComplete(EventArgs.Empty);
 
             VerifyOurIdentity(client);
         }

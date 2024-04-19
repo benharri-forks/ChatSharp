@@ -12,7 +12,7 @@ namespace ChatSharp
     {
         internal ChannelCollection()
         {
-            Channels = new();
+            Channels = new List<IrcChannel>();
         }
 
         internal ChannelCollection(IrcClient client) : this()

@@ -1,3 +1,5 @@
+using ChatSharp.Events;
+
 namespace ChatSharp.Handlers
 {
     internal static class ServerHandlers
@@ -5,7 +7,7 @@ namespace ChatSharp.Handlers
         public static void HandleISupport(IrcClient client, IrcMessage message)
         {
             if (client.ServerInfo == null)
-                client.ServerInfo = new();
+                client.ServerInfo = new ServerInfo();
             foreach (var item in message.Parameters)
             {
                 string key, value;
@@ -57,7 +59,7 @@ namespace ChatSharp.Handlers
                                 var limitedModes = limits[i].Remove(limits[i].IndexOf(':'));
                                 var limit = int.Parse(limits[i][(limits[i].IndexOf(':') + 1)..]);
                                 foreach (var mode in limitedModes)
-                                    client.ServerInfo.ModeListLimits[i] = new(mode, limit);
+                                    client.ServerInfo.ModeListLimits[i] = new ServerInfo.ModeListLimit(mode, limit);
                             }
 
                             break;
@@ -92,7 +94,7 @@ namespace ChatSharp.Handlers
                     }
             }
 
-            client.OnServerInfoReceived(new(client.ServerInfo));
+            client.OnServerInfoReceived(new SupportsEventArgs(client.ServerInfo));
         }
 
         public static void HandleMyInfo(IrcClient client, IrcMessage message)
@@ -100,7 +102,7 @@ namespace ChatSharp.Handlers
             // 004 sendak.freenode.net ircd-seven-1.1.3 DOQRSZaghilopswz CFILMPQbcefgijklmnopqrstvz bkloveqjfI
             // TODO: Figure out how to properly handle this message
             if (client.ServerInfo == null)
-                client.ServerInfo = new();
+                client.ServerInfo = new ServerInfo();
             if (message.Parameters.Length >= 5)
                 foreach (var c in message.Parameters[4])
                     if (!client.ServerInfo.SupportedChannelModes.ChannelUserModes.Contains(c))

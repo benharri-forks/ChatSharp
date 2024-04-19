@@ -10,7 +10,7 @@ namespace ChatSharp
     {
         internal WhoIs()
         {
-            User = new();
+            User = new IrcUser();
             SecondsIdle = -1;
             Channels = Array.Empty<string>();
         }

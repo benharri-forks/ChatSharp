@@ -12,7 +12,7 @@ namespace ChatSharp
         {
             QueryType = -1;
             Channel = "*";
-            User = new();
+            User = new IrcUser();
             IP = string.Empty;
             Server = string.Empty;
             Flags = string.Empty;

@@ -1,3 +1,5 @@
+using ChatSharp.Events;
+
 namespace ChatSharp.Handlers
 {
     /// <summary>
@@ -10,7 +12,7 @@ namespace ChatSharp.Handlers
         /// </summary>
         public static void HandleError(IrcClient client, IrcMessage message)
         {
-            client.OnErrorReply(new(message));
+            client.OnErrorReply(new ErrorReplyEventArgs(message));
         }
     }
 }

@@ -35,18 +35,18 @@ namespace ChatSharp
             User = user ?? throw new ArgumentNullException(nameof(user));
             ServerAddress = serverAddress ?? throw new ArgumentNullException(nameof(serverAddress));
             Encoding = Encoding.UTF8;
-            Settings = new();
-            Handlers = new();
+            Settings = new ClientSettings();
+            Handlers = new Dictionary<string, MessageHandler>();
             MessageHandlers.RegisterDefaultHandlers(this);
-            RequestManager = new();
+            RequestManager = new RequestManager();
             UseSSL = useSSL;
-            WriteQueue = new();
-            ServerInfo = new();
+            WriteQueue = new ConcurrentQueue<string>();
+            ServerInfo = new ServerInfo();
             PrivmsgPrefix = "";
-            Channels = User.Channels = new(this);
+            Channels = User.Channels = new ChannelCollection(this);
             // Add self to user pool
-            Users = new() { User };
-            Capabilities = new();
+            Users = new UserPool { User };
+            Capabilities = new CapabilityPool();
 
             // List of supported capabilities
             Capabilities.AddRange(new[]
@@ -58,7 +58,7 @@ namespace ChatSharp
             IsNegotiatingCapabilities = false;
             IsAuthenticatingSasl = false;
 
-            RandomNumber = new();
+            RandomNumber = new Random();
         }
 
         private Dictionary<string, MessageHandler> Handlers { get; }
@@ -199,17 +199,17 @@ namespace ChatSharp
         {
             if (Socket != null && Socket.Connected)
                 throw new InvalidOperationException("Socket is already connected to server.");
-            Socket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             ReadBuffer = new byte[ReadBufferLength];
             ReadBufferIndex = 0;
-            PingTimer = new(30000);
-            PingTimer.Elapsed += (_, _) =>
+            PingTimer = new Timer(30000);
+            PingTimer.Elapsed += (x, y) =>
             {
                 if (!string.IsNullOrEmpty(ServerNameFromPing))
                     SendRawMessage("PING :{0}", ServerNameFromPing);
             };
             var checkQueue = new Timer(1000);
-            checkQueue.Elapsed += (_, _) =>
+            checkQueue.Elapsed += (x, y) =>
             {
                 if (!WriteQueue.IsEmpty)
                 {
@@ -260,7 +260,7 @@ namespace ChatSharp
                 if (UseSSL)
                 {
                     if (IgnoreInvalidSSL)
-                        NetworkStream = new SslStream(NetworkStream, false, (_, _, _, _) => true);
+                        NetworkStream = new SslStream(NetworkStream, false, (a, b, c, d) => true);
                     else
                         NetworkStream = new SslStream(NetworkStream);
                     ((SslStream)NetworkStream).AuthenticateAsClient(ServerHostname);
@@ -279,11 +279,11 @@ namespace ChatSharp
             }
             catch (SocketException e)
             {
-                OnNetworkError(new(e.SocketErrorCode));
+                OnNetworkError(new SocketErrorEventArgs(e.SocketErrorCode));
             }
             catch (Exception e)
             {
-                OnError(new(e));
+                OnError(new ErrorEventArgs(e));
             }
         }
 
@@ -291,7 +291,7 @@ namespace ChatSharp
         {
             if (NetworkStream == null)
             {
-                OnNetworkError(new(SocketError.NotConnected));
+                OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
                 return;
             }
 
@@ -303,7 +303,7 @@ namespace ChatSharp
             catch (IOException e)
             {
                 if (e.InnerException is SocketException socketException)
-                    OnNetworkError(new(socketException.SocketErrorCode));
+                    OnNetworkError(new SocketErrorEventArgs(socketException.SocketErrorCode));
                 else
                     throw;
                 return;
@@ -332,7 +332,7 @@ namespace ChatSharp
 
         private void HandleMessage(string rawMessage)
         {
-            OnRawMessageReceived(new(rawMessage, false));
+            OnRawMessageReceived(new RawMessageEventArgs(rawMessage, false));
             var message = new IrcMessage(rawMessage);
             if (Handlers.ContainsKey(message.Command.ToUpper()))
             {
@@ -347,7 +347,7 @@ namespace ChatSharp
         {
             if (NetworkStream == null)
             {
-                OnNetworkError(new(SocketError.NotConnected));
+                OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
                 return;
             }
 
@@ -377,7 +377,7 @@ namespace ChatSharp
         {
             if (NetworkStream == null)
             {
-                OnNetworkError(new(SocketError.NotConnected));
+                OnNetworkError(new SocketErrorEventArgs(SocketError.NotConnected));
                 IsWriting = false;
                 return;
             }
@@ -389,7 +389,7 @@ namespace ChatSharp
             catch (IOException e)
             {
                 if (e.InnerException is SocketException socketException)
-                    OnNetworkError(new(socketException.SocketErrorCode));
+                    OnNetworkError(new SocketErrorEventArgs(socketException.SocketErrorCode));
                 else
                     throw;
                 return;
@@ -399,7 +399,7 @@ namespace ChatSharp
                 IsWriting = false;
             }
 
-            OnRawMessageSent(new((string)result.AsyncState, true));
+            OnRawMessageSent(new RawMessageEventArgs((string)result.AsyncState, true));
 
             string nextMessage;
             if (!WriteQueue.IsEmpty)

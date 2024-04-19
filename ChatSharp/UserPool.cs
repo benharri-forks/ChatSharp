@@ -13,7 +13,7 @@ namespace ChatSharp
     {
         internal UserPool()
         {
-            Users = new();
+            Users = new List<IrcUser>();
         }
 
         private List<IrcUser> Users { get; }

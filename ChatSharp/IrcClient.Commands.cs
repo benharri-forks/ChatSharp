@@ -163,7 +163,7 @@ namespace ChatSharp
         public void WhoIs(string nick, Action<WhoIs> callback)
         {
             var whois = new WhoIs();
-            RequestManager.QueueOperation("WHOIS " + nick, new(whois, ro => { callback?.Invoke((WhoIs)ro.State); }));
+            RequestManager.QueueOperation("WHOIS " + nick, new RequestOperation(whois, ro => { callback?.Invoke((WhoIs)ro.State); }));
             SendRawMessage("WHOIS {0}", nick);
         }
 
@@ -190,7 +190,7 @@ namespace ChatSharp
                 var queryKey = string.Format("WHO {0} {1} {2:D}", target, queryType, _fields);
 
                 RequestManager.QueueOperation(queryKey,
-                    new(whox, ro => { callback?.Invoke((List<ExtendedWho>)ro.State); }));
+                    new RequestOperation(whox, ro => { callback?.Invoke((List<ExtendedWho>)ro.State); }));
                 SendRawMessage(whoQuery);
             }
             else
@@ -200,7 +200,7 @@ namespace ChatSharp
                 var whoQuery = string.Format("WHO {0}", target);
 
                 RequestManager.QueueOperation(whoQuery,
-                    new(whox, ro => { callback?.Invoke((List<ExtendedWho>)ro.State); }));
+                    new RequestOperation(whox, ro => { callback?.Invoke((List<ExtendedWho>)ro.State); }));
                 SendRawMessage(whoQuery);
             }
         }
@@ -218,7 +218,7 @@ namespace ChatSharp
         /// </summary>
         public void GetMode(string channel, Action<IrcChannel> callback)
         {
-            RequestManager.QueueOperation("MODE " + channel, new(channel, ro =>
+            RequestManager.QueueOperation("MODE " + channel, new RequestOperation(channel, ro =>
             {
                 var c = Channels[(string)ro.State];
                 callback?.Invoke(c);
@@ -240,7 +240,7 @@ namespace ChatSharp
         /// </summary>
         public void GetModeList(string channel, char mode, Action<MaskCollection> callback)
         {
-            RequestManager.QueueOperation("GETMODE " + mode + " " + channel, new(new MaskCollection(), ro =>
+            RequestManager.QueueOperation("GETMODE " + mode + " " + channel, new RequestOperation(new MaskCollection(), ro =>
             {
                 var c = (MaskCollection)ro.State;
                 callback?.Invoke(c);

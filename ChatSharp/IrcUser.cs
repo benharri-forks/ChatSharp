@@ -10,8 +10,8 @@ namespace ChatSharp
     {
         internal IrcUser()
         {
-            Channels = new();
-            ChannelModes = new();
+            Channels = new ChannelCollection();
+            ChannelModes = new Dictionary<IrcChannel, List<char?>>();
             Account = "*";
         }
 

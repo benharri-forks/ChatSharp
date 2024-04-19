@@ -12,7 +12,7 @@ namespace ChatSharp
     {
         internal CapabilityPool()
         {
-            Capabilities = new();
+            Capabilities = new List<IrcCapability>();
         }
 
         private List<IrcCapability> Capabilities { get; }
@@ -67,7 +67,7 @@ namespace ChatSharp
             if (Capabilities.Any(cap => cap.Name == name))
                 return;
 
-            Capabilities.Add(new(name));
+            Capabilities.Add(new IrcCapability(name));
         }
 
         internal void AddRange(IEnumerable<string> range)

@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ChatSharp.Events;
 
 namespace ChatSharp.Handlers
 {
@@ -25,7 +26,7 @@ namespace ChatSharp.Handlers
                             user.Account = whoQuery[0].User.Account;
                     });
 
-                client.OnUserJoinedChannel(new(channel, user));
+                client.OnUserJoinedChannel(new ChannelUserEventArgs(channel, user));
             }
         }
 
@@ -34,7 +35,7 @@ namespace ChatSharp.Handlers
             var channel = client.Channels.GetOrAdd(message.Parameters[1]);
             var old = channel._Topic;
             channel._Topic = message.Parameters[2];
-            client.OnChannelTopicReceived(new(channel, old, channel._Topic));
+            client.OnChannelTopicReceived(new ChannelTopicEventArgs(channel, old, channel._Topic));
         }
 
         public static void HandleGetEmptyTopic(IrcClient client, IrcMessage message)
@@ -42,7 +43,7 @@ namespace ChatSharp.Handlers
             var channel = client.Channels.GetOrAdd(message.Parameters[1]);
             var old = channel._Topic;
             channel._Topic = message.Parameters[2];
-            client.OnChannelTopicReceived(new(channel, old, channel._Topic));
+            client.OnChannelTopicReceived(new ChannelTopicEventArgs(channel, old, channel._Topic));
         }
 
         public static void HandlePart(IrcClient client, IrcMessage message)
@@ -58,7 +59,7 @@ namespace ChatSharp.Handlers
             if (user.ChannelModes.ContainsKey(channel))
                 user.ChannelModes.Remove(channel);
 
-            client.OnUserPartedChannel(new(channel, user));
+            client.OnUserPartedChannel(new ChannelUserEventArgs(channel, user));
         }
 
         public static void HandleUserListPart(IrcClient client, IrcMessage message)
@@ -127,7 +128,7 @@ namespace ChatSharp.Handlers
         public static void HandleUserListEnd(IrcClient client, IrcMessage message)
         {
             var channel = client.Channels[message.Parameters[1]];
-            client.OnChannelListReceived(new(channel));
+            client.OnChannelListReceived(new ChannelEventArgs(channel));
             if (client.Settings.ModeOnJoin)
                 try
                 {
@@ -164,7 +165,7 @@ namespace ChatSharp.Handlers
             var kicked = channel.Users[message.Parameters[1]];
             if (kicked.Channels.Contains(channel))
                 kicked.Channels.Remove(channel);
-            client.OnUserKicked(new(channel, new(message.Prefix),
+            client.OnUserKicked(new KickEventArgs(channel, new IrcUser(message.Prefix),
                 kicked, message.Parameters[2]));
         }
     }
