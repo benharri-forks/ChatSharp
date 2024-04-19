@@ -84,7 +84,7 @@ namespace ChatSharp
         /// </summary>
         public string ServerAddress
         {
-            get => ServerHostname + ":" + ServerPort;
+            get => $"{ServerHostname}:{ServerPort}";
             internal set
             {
                 var parts = value.Split(':');
@@ -180,7 +180,7 @@ namespace ChatSharp
             if (Handlers.ContainsKey(message.ToUpper()))
                 Console.WriteLine("Warning: {0} handler has been overwritten", message);
 #endif
-            message = message.ToUpper();
+            message = message.ToUpperInvariant();
             Handlers[message] = handler;
         }
 
@@ -223,17 +223,9 @@ namespace ChatSharp
         }
 
         /// <summary>
-        ///     Send a QUIT message and disconnect.
-        /// </summary>
-        public void Quit()
-        {
-            Quit(null);
-        }
-
-        /// <summary>
         ///     Send a QUIT message with a reason and disconnect.
         /// </summary>
-        public void Quit(string reason)
+        public void Quit(string reason = null)
         {
             if (reason == null)
                 SendRawMessage("QUIT");
@@ -348,7 +340,7 @@ namespace ChatSharp
             }
 
             message = string.Format(message, format);
-            var data = Encoding.GetBytes(message + "\r\n");
+            var data = Encoding.GetBytes($"{message}\r\n");
 
             if (!IsWriting)
             {
@@ -397,9 +389,9 @@ namespace ChatSharp
 
             OnRawMessageSent(new RawMessageEventArgs((string)result.AsyncState, true));
 
-            string nextMessage;
             if (!WriteQueue.IsEmpty)
             {
+                string nextMessage;
                 while (!WriteQueue.TryDequeue(out nextMessage))
                 {
                 }
@@ -520,7 +512,7 @@ namespace ChatSharp
 
         /// <summary>
         ///     Raised if the nick you've chosen is in use. By default, ChatSharp will pick a
-        ///     random nick to use instead. Set ErronousNickEventArgs.DoNotHandle to prevent this.
+        ///     random nick to use instead. Set ErroneousNickEventArgs.DoNotHandle to prevent this.
         /// </summary>
         public event EventHandler<ErroneousNickEventArgs> NickInUse;
 

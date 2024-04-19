@@ -74,7 +74,7 @@ namespace ChatSharp.Handlers
                         continue;
 
                     // Parse hostmask
-                    var nick = hostmask.Substring(0, hostmask.IndexOf("!", StringComparison.Ordinal));
+                    var nick = hostmask[..hostmask.IndexOf("!", StringComparison.Ordinal)];
                     var ident = hostmask[(nick.Length + 1)..hostmask.LastIndexOf("@", StringComparison.Ordinal)];
                     var hostname = hostmask[(hostmask.LastIndexOf("@", StringComparison.Ordinal) + 1)..];
 

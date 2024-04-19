@@ -187,12 +187,12 @@ namespace ChatSharp.Handlers
                         if (client.ServerInfo.SupportedChannelModes.ParameterizedSettings.Contains(c))
                         {
                             client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Source),
-                                (add ? "+" : "-") + c + " " + message.Parameters[i++]));
+                                $"{(add ? "+" : "-")}{c} {message.Parameters[i++]}"));
                         }
                         else if (client.ServerInfo.SupportedChannelModes.ChannelLists.Contains(c))
                         {
                             client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Source),
-                                (add ? "+" : "-") + c + " " + message.Parameters[i++]));
+                                $"{(add ? "+" : "-")}{c} {message.Parameters[i++]}"));
                         }
                         else if (client.ServerInfo.SupportedChannelModes.ChannelUserModes.Contains(c))
                         {
@@ -218,7 +218,7 @@ namespace ChatSharp.Handlers
                             }
 
                             client.OnModeChanged(new ModeChangeEventArgs(channel.Name, new IrcUser(message.Source),
-                                (add ? "+" : "-") + c + " " + message.Parameters[i++]));
+                                $"{(add ? "+" : "-")}{c} {message.Parameters[i++]}"));
                         }
 
                         if (client.ServerInfo.SupportedChannelModes.Settings.Contains(c))
@@ -244,7 +244,7 @@ namespace ChatSharp.Handlers
 
                 if (message.Command == "324")
                 {
-                    var operation = client.RequestManager.DequeueOperation("MODE " + channel.Name);
+                    var operation = client.RequestManager.DequeueOperation($"MODE {channel.Name}");
                     operation.Callback(operation);
                 }
             }

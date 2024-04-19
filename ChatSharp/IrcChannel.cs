@@ -36,7 +36,7 @@ namespace ChatSharp
         ///     The name, including the prefix (i.e. #), of this channel.
         /// </summary>
         /// <value>The name.</value>
-        public string Name { get; internal set; }
+        public string Name { get; }
 
         /// <summary>
         ///     The channel mode. May be null if we have not received the mode yet.
