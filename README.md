@@ -46,7 +46,7 @@ Regardless of platform, you'll receive binaries in `ChatSharp/bin/Release/`. Cha
 
 ## Support
 
-Open a [Github issue](https://github.com/SirCmpwn/ChatSharp/issues) describing your problem.
+Open an [issue](https://tildegit.org/ben/chatsharp/issues) describing your problem.
 
 ## Development / Contributing
 
