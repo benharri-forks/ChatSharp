@@ -227,8 +227,7 @@ namespace ChatSharp.Handlers
         {
             if (client.ServerInfo.ExtendedWho)
             {
-                var query = client.RequestManager.PendingOperations
-                    .Where(kvp => kvp.Key.StartsWith("WHO " + message.Parameters[1])).FirstOrDefault();
+                var query = client.RequestManager.PendingOperations.FirstOrDefault(kvp => kvp.Key.StartsWith("WHO " + message.Parameters[1]));
                 var request = client.RequestManager.DequeueOperation(query.Key);
                 var whoxList = (List<ExtendedWho>)request.State;
 
@@ -241,8 +240,7 @@ namespace ChatSharp.Handlers
             }
             else
             {
-                var query = client.RequestManager.PendingOperations
-                    .Where(kvp => kvp.Key == "WHO " + message.Parameters[1]).FirstOrDefault();
+                var query = client.RequestManager.PendingOperations.FirstOrDefault(kvp => kvp.Key == "WHO " + message.Parameters[1]);
                 var request = client.RequestManager.DequeueOperation(query.Key);
                 var whoList = (List<ExtendedWho>)request.State;
 
