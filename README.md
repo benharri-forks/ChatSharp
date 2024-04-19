@@ -36,13 +36,9 @@ while (true) ; // Waste CPU cycles
 
 ## Compiling
 
-On Linux/Mac:
+    dotnet build -c Release
 
-    xbuild /p:Configuration=Release
-
-On Windows, use Visual Studio or similar and build in Release mode.
-
-Regardless of platform, you'll receive binaries in `ChatSharp/bin/Release/`. ChatSharp has no dependencies.
+You'll receive binaries in `ChatSharp/bin/Release/netstandard2.1`. ChatSharp has no dependencies.
 
 ## Support
 
