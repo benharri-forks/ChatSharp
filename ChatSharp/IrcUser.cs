@@ -29,10 +29,7 @@ namespace ChatSharp
                 var mask = host.Split('@', '!');
                 Nick = mask[0];
                 User = mask[1];
-                if (mask.Length <= 2)
-                    Hostname = "";
-                else
-                    Hostname = mask[2];
+                Hostname = mask.Length <= 2 ? "" : mask[2];
             }
         }
 
