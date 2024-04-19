@@ -106,6 +106,8 @@ namespace ChatSharp
         /// </summary>
         public string Source { get; set; }
 
+        public IrcUser User => new IrcUser(Source);
+
         /// <summary>
         ///     The message command.
         /// </summary>

@@ -1,4 +1,7 @@
-﻿namespace ChatSharp.Tests.Data;
+﻿// ReSharper disable CollectionNeverUpdated.Global
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+namespace ChatSharp.Tests.Data;
 
 public class SplitModel
 {
