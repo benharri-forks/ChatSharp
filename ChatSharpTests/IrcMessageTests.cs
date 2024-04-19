@@ -12,7 +12,7 @@ namespace ChatSharp.Tests
         {
             try
             {
-                _ = new IrcMessage(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+                _ = new IrcMessage(":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
             }
             catch (Exception e)
             {
@@ -23,14 +23,14 @@ namespace ChatSharp.Tests
         [TestMethod]
         public void NewValidMessage_Command()
         {
-            IrcMessage fromMessage = new(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+            IrcMessage fromMessage = new(":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
             Assert.AreEqual(fromMessage.Command, "PRIVMSG");
         }
 
         [TestMethod]
         public void NewValidMessage_Prefix()
         {
-            IrcMessage fromMessage = new(@":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
+            IrcMessage fromMessage = new(":user!~ident@host PRIVMSG target :Lorem ipsum dolor sit amet");
             Assert.AreEqual(fromMessage.Prefix, "user!~ident@host");
         }
 
@@ -118,16 +118,16 @@ namespace ChatSharp.Tests
         public void Timestamp_FromTimestamp()
         {
             IrcMessage[] messages =
-            {
+            [
                 new("@t=1504923966 :Angel!angel@example.org PRIVMSG Wiz :Hello"),
                 new("@t=1504923972 :John!~john@1.2.3.4 JOIN #chan")
-            };
+            ];
 
             string[] timestamps =
-            {
+            [
                 "2017-09-09T02:26:06.000Z",
                 "2017-09-09T02:26:12.000Z"
-            };
+            ];
 
             Assert.AreEqual(messages[0].Timestamp.ToISOString(), timestamps[0]);
             Assert.AreEqual(messages[1].Timestamp.ToISOString(), timestamps[1]);
