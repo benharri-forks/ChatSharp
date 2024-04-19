@@ -6,18 +6,12 @@ namespace ChatSharp
 {
     internal class RequestManager
     {
-        public RequestManager()
-        {
-            PendingOperations = new Dictionary<string, RequestOperation>();
-        }
-
-        internal Dictionary<string, RequestOperation> PendingOperations { get; }
+        internal Dictionary<string, RequestOperation> PendingOperations { get; } = new Dictionary<string, RequestOperation>();
 
         public void QueueOperation(string key, RequestOperation operation)
         {
-            if (PendingOperations.ContainsKey(key))
+            if (!PendingOperations.TryAdd(key, operation))
                 throw new InvalidOperationException("Operation is already pending.");
-            PendingOperations.Add(key, operation);
         }
 
         public RequestOperation PeekOperation(string key)
