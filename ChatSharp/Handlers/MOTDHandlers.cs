@@ -14,7 +14,7 @@ namespace ChatSharp.Handlers
 
         public static void HandleMOTD(IrcClient client, IrcMessage message)
         {
-            if (message.Parameters.Length != 2)
+            if (message.Parameters.Count != 2)
                 throw new IrcProtocolException("372 MOTD message is incorrectly formatted.");
             var part = message.Parameters[1][2..];
             MOTD += part + Environment.NewLine;

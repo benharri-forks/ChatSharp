@@ -91,10 +91,7 @@ namespace ChatSharp
                 if (parts.Length > 2 || parts.Length == 0)
                     throw new FormatException("Server address is not in correct format ('hostname:port')");
                 ServerHostname = parts[0];
-                if (parts.Length > 1)
-                    ServerPort = int.Parse(parts[1]);
-                else
-                    ServerPort = 6667;
+                ServerPort = parts.Length > 1 ? int.Parse(parts[1]) : 6667;
             }
         }
 
@@ -197,7 +194,7 @@ namespace ChatSharp
         /// </summary>
         public void ConnectAsync()
         {
-            if (Socket != null && Socket.Connected)
+            if (Socket is { Connected: true })
                 throw new InvalidOperationException("Socket is already connected to server.");
             Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             ReadBuffer = new byte[ReadBufferLength];
@@ -259,10 +256,9 @@ namespace ChatSharp
                 NetworkStream = new NetworkStream(Socket);
                 if (UseSSL)
                 {
-                    if (IgnoreInvalidSSL)
-                        NetworkStream = new SslStream(NetworkStream, false, (a, b, c, d) => true);
-                    else
-                        NetworkStream = new SslStream(NetworkStream);
+                    NetworkStream = IgnoreInvalidSSL
+                        ? new SslStream(NetworkStream, false, (a, b, c, d) => true)
+                        : new SslStream(NetworkStream);
                     ((SslStream)NetworkStream).AuthenticateAsClient(ServerHostname);
                 }
 
@@ -334,9 +330,9 @@ namespace ChatSharp
         {
             OnRawMessageReceived(new RawMessageEventArgs(rawMessage, false));
             var message = new IrcMessage(rawMessage);
-            if (Handlers.ContainsKey(message.Command.ToUpper()))
+            if (Handlers.TryGetValue(message.Command, out var handler))
             {
-                Handlers[message.Command.ToUpper()](this, message);
+                handler(this, message);
             }
         }
 
@@ -370,7 +366,7 @@ namespace ChatSharp
         /// </summary>
         public void SendIrcMessage(IrcMessage message)
         {
-            SendRawMessage(message.RawMessage);
+            SendRawMessage(message.Format());
         }
 
         private void MessageSent(IAsyncResult result)

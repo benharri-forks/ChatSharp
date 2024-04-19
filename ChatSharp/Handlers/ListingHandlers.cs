@@ -4,7 +4,7 @@ namespace ChatSharp.Handlers
     {
         public static void HandleBanListPart(IrcClient client, IrcMessage message)
         {
-            var parameterString = message.RawMessage[message.RawMessage.IndexOf(' ')..];
+            var parameterString = message.Format()[message.Format().IndexOf(' ')..];
             var parameters = parameterString[parameterString.IndexOf(' ')..].Split(' ');
             var request = client.RequestManager.PeekOperation("GETMODE b " + parameters[1]);
             var list = (MaskCollection)request.State;
@@ -20,7 +20,7 @@ namespace ChatSharp.Handlers
 
         public static void HandleExceptionListPart(IrcClient client, IrcMessage message)
         {
-            var parameterString = message.RawMessage[(message.RawMessage.IndexOf(' ') + 1)..];
+            var parameterString = message.Format()[(message.Format().IndexOf(' ') + 1)..];
             var parameters = parameterString[(parameterString.IndexOf(' ') + 1)..].Split(' ');
             var request = client.RequestManager.PeekOperation("GETMODE e " + parameters[1]);
             var list = (MaskCollection)request.State;
@@ -36,7 +36,7 @@ namespace ChatSharp.Handlers
 
         public static void HandleInviteListPart(IrcClient client, IrcMessage message)
         {
-            var parameterString = message.RawMessage[(message.RawMessage.IndexOf(' ') + 1)..];
+            var parameterString = message.Format()[(message.Format().IndexOf(' ') + 1)..];
             var parameters = parameterString[(parameterString.IndexOf(' ') + 1)..].Split(' ');
             var request = client.RequestManager.PeekOperation("GETMODE I " + parameters[1]);
             var list = (MaskCollection)request.State;
@@ -52,7 +52,7 @@ namespace ChatSharp.Handlers
 
         public static void HandleQuietListPart(IrcClient client, IrcMessage message)
         {
-            var parameterString = message.RawMessage[(message.RawMessage.IndexOf(' ') + 1)..];
+            var parameterString = message.Format()[(message.Format().IndexOf(' ') + 1)..];
             var parameters = parameterString[(parameterString.IndexOf(' ') + 1)..].Split(' ');
             var request = client.RequestManager.PeekOperation("GETMODE q " + parameters[1]);
             var list = (MaskCollection)request.State;

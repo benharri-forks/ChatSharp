@@ -19,13 +19,12 @@ namespace ChatSharp.Handlers
                     {
                         var chunk = b64Bytes.Take(400).ToArray();
                         b64Bytes = b64Bytes.Skip(400).ToArray();
-                        client.SendRawMessage(string.Format("AUTHENTICATE {0}", Encoding.UTF8.GetString(chunk)));
+                        client.SendRawMessage($"AUTHENTICATE {Encoding.UTF8.GetString(chunk)}");
                     }
 
-                    if (b64Bytes.Length > 0)
-                        client.SendRawMessage(string.Format("AUTHENTICATE {0}", Encoding.UTF8.GetString(b64Bytes)));
-                    else
-                        client.SendRawMessage("AUTHENTICATE +");
+                    client.SendRawMessage(b64Bytes.Length > 0
+                        ? $"AUTHENTICATE {Encoding.UTF8.GetString(b64Bytes)}"
+                        : "AUTHENTICATE +");
 
                     client.IsAuthenticatingSasl = false;
                 }

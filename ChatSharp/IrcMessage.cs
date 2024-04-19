@@ -1,130 +1,243 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 
 namespace ChatSharp
 {
+    
     /// <summary>
     ///     Represents a raw IRC message. This is a low-level construct - PrivateMessage is used
     ///     to represent messages sent from users.
     /// </summary>
-    public class IrcMessage
+    public class IrcMessage : IEquatable<IrcMessage>
     {
-        /// <summary>
-        ///     Initializes and decodes an IRC message, given the raw message from the server.
-        /// </summary>
-        public IrcMessage(string rawMessage)
+        private static readonly string[] TagUnescaped = {"\\", " ", ";", "\r", "\n"};
+        private static readonly string[] TagEscaped = {@"\\", "\\s", "\\:", "\\r", "\\n"};
+        
+        public IrcMessage()
         {
-            RawMessage = rawMessage;
-            Tags = Array.Empty<KeyValuePair<string, string>>();
+        }
+        
+        public IrcMessage(string command, params string[] parameters)
+        {
+            Command = command.ToUpperInvariant();
+            Parameters  = parameters.ToList();
+        }
+        
+        /// <summary>
+        ///     Parse and tokenize an IRC message, given the raw message from the server.
+        /// </summary>
+        public IrcMessage(string line)
+        {
+            if (string.IsNullOrWhiteSpace(line)) throw new ArgumentNullException(nameof(line));
 
-            if (rawMessage.StartsWith("@"))
+            string[] split;
+
+            if (line.StartsWith('@'))
             {
-                var rawTags = rawMessage[1..rawMessage.IndexOf(' ')];
-                rawMessage = rawMessage[(rawMessage.IndexOf(' ') + 1)..];
+                Tags = new Dictionary<string, string>();
 
-                // Parse tags as key value pairs
-                var tags = new List<KeyValuePair<string, string>>();
-                foreach (var rawTag in rawTags.Split(';'))
-                {
-                    var replacedTag = rawTag.Replace(@"\:", ";");
-                    // The spec declares `@a=` as a tag with an empty value, while `@b;` as a tag with a null value
-                    KeyValuePair<string, string> tag = new KeyValuePair<string, string>(replacedTag, null);
+                split = line.Split(" ", 2);
+                var messageTags = split[0];
+                line = split[1];
 
-                    if (replacedTag.Contains("="))
+                foreach (var part in messageTags[1..].Split(';'))
+                    if (part.Contains('=', StringComparison.Ordinal))
                     {
-                        var key = replacedTag.Substring(0, replacedTag.IndexOf("=", StringComparison.Ordinal));
-                        var value = replacedTag[(replacedTag.IndexOf("=", StringComparison.Ordinal) + 1)..];
-                        tag = new KeyValuePair<string, string>(key, value);
+                        split          = part.Split('=', 2);
+                        Tags[split[0]] = UnescapeTag(split[1]);
                     }
-
-                    tags.Add(tag);
-                }
-
-                Tags = tags.ToArray();
+                    else
+                    {
+                        Tags[part] = null;
+                    }
             }
 
-            if (rawMessage.StartsWith(":"))
+            string trailing;
+            if (line.Contains(" :", StringComparison.Ordinal))
             {
-                Prefix = rawMessage[1..rawMessage.IndexOf(' ')];
-                rawMessage = rawMessage[(rawMessage.IndexOf(' ') + 1)..];
-            }
-
-            if (rawMessage.Contains(' '))
-            {
-                Command = rawMessage.Remove(rawMessage.IndexOf(' '));
-                rawMessage = rawMessage[(rawMessage.IndexOf(' ') + 1)..];
-                // Parse parameters
-                var parameters = new List<string>();
-                while (!string.IsNullOrEmpty(rawMessage))
-                {
-                    if (rawMessage.StartsWith(":"))
-                    {
-                        parameters.Add(rawMessage[1..]);
-                        break;
-                    }
-
-                    if (!rawMessage.Contains(' '))
-                    {
-                        parameters.Add(rawMessage);
-                        rawMessage = string.Empty;
-                        break;
-                    }
-
-                    parameters.Add(rawMessage.Remove(rawMessage.IndexOf(' ')));
-                    rawMessage = rawMessage[(rawMessage.IndexOf(' ') + 1)..];
-                }
-
-                Parameters = parameters.ToArray();
+                split    = line.Split(" :", 2);
+                line     = split[0];
+                trailing = split[1];
             }
             else
             {
-                // Violates RFC 1459, but we'll parse it anyway
-                Command = rawMessage;
-                Parameters = Array.Empty<string>();
+                trailing = null;
             }
+
+            Parameters = line.Contains(' ', StringComparison.Ordinal)
+                ? line.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList()
+                : new List<string> {line};
+
+            if (Parameters[0].StartsWith(':'))
+            {
+                Source = Parameters[0][1..];
+                Parameters.RemoveAt(0);
+            }
+
+            if (Parameters.Count > 0)
+            {
+                Command = Parameters[0].ToUpper(CultureInfo.InvariantCulture);
+                Parameters.RemoveAt(0);
+            }
+
+            if (trailing != null) Parameters.Add(trailing);
 
             // Parse server-time message tag.
             // Fallback to server-info if both znc.in/server-info and the former exists.
             //
             // znc.in/server-time tag
-            if (Tags.Any(tag => tag.Key == "t"))
+            if (Tags?.Any(tag => tag.Key == "t") ?? false)
             {
                 var tag = Tags.SingleOrDefault(x => x.Key == "t");
                 Timestamp = new Timestamp(tag.Value, true);
             }
             // server-time tag
-            else if (Tags.Any(tag => tag.Key == "time"))
+            else if (Tags?.Any(tag => tag.Key == "time") ?? false)
             {
                 var tag = Tags.SingleOrDefault(x => x.Key == "time");
                 Timestamp = new Timestamp(tag.Value);
             }
         }
+        
+        public bool Equals(IrcMessage other)
+        {
+            if (other == null) return false;
+
+            return Format() == other.Format();
+        }
+        
+        public override int GetHashCode()
+        {
+            return Format().GetHashCode(StringComparison.Ordinal);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as IrcMessage);
+        }
+
+        
+        /// <summary>
+        ///     Unescape ircv3 tag
+        /// </summary>
+        /// <param name="val">escaped string</param>
+        /// <returns>unescaped string</returns>
+        private static string UnescapeTag(string val)
+        {
+            var unescaped = new StringBuilder();
+
+            var graphemeIterator = StringInfo.GetTextElementEnumerator(val);
+            graphemeIterator.Reset();
+
+            while (graphemeIterator.MoveNext())
+            {
+                var current = graphemeIterator.GetTextElement();
+
+                if (current == @"\")
+                    try
+                    {
+                        graphemeIterator.MoveNext();
+                        var next = graphemeIterator.GetTextElement();
+                        var pair = current + next;
+                        unescaped.Append(TagEscaped.Contains(pair)
+                            ? TagUnescaped[Array.IndexOf(TagEscaped, pair)]
+                            : next);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // ignored
+                    }
+                else
+                    unescaped.Append(current);
+            }
+
+            return unescaped.ToString();
+        }
 
         /// <summary>
-        ///     The unparsed message.
+        ///     Escape strings for use in ircv3 tags
         /// </summary>
-        public string RawMessage { get; }
+        /// <param name="val">string to escape</param>
+        /// <returns>escaped string</returns>
+        private static string EscapeTag(string val)
+        {
+            for (var i = 0; i < TagUnescaped.Length; ++i)
+                val = val?.Replace(TagUnescaped[i], TagEscaped[i], StringComparison.Ordinal);
+
+            return val;
+        }
+        
+        /// <summary>
+        ///     Formats self <see cref="IrcMessage" /> as a standards-compliant IRC line
+        /// </summary>
+        /// <returns>formatted irc line</returns>
+        public string Format()
+        {
+            var outs = new List<string>();
+
+            if (Tags != null && Tags.Any())
+            {
+                var tags = Tags.Keys
+                    .OrderBy(k => k)
+                    .Select(key =>
+                        string.IsNullOrWhiteSpace(Tags[key]) ? key : $"{key}={EscapeTag(Tags[key])}")
+                    .ToList();
+
+                outs.Add($"@{string.Join(";", tags)}");
+            }
+
+            if (Source != null) outs.Add($":{Source}");
+
+            outs.Add(Command);
+
+            if (Parameters != null && Parameters.Any())
+            {
+                var last        = Parameters[^1];
+                var withoutLast = Parameters.SkipLast(1).ToList();
+
+                foreach (var p in withoutLast)
+                {
+                    if (p.Contains(' ', StringComparison.Ordinal))
+                        throw new ArgumentException("non-last parameters cannot have spaces", p);
+
+                    if (p.StartsWith(':'))
+                        throw new ArgumentException("non-last parameters cannot start with colon", p);
+                }
+
+                outs.AddRange(withoutLast);
+
+                if (string.IsNullOrWhiteSpace(last) || last.Contains(' ', StringComparison.Ordinal) ||
+                    last.StartsWith(':'))
+                    last = $":{last}";
+
+                outs.Add(last);
+            }
+
+            return string.Join(" ", outs);
+        }
 
         /// <summary>
-        ///     The message prefix.
+        ///     The message source.
         /// </summary>
-        public string Prefix { get; }
+        public string Source { get; set; }
 
         /// <summary>
         ///     The message command.
         /// </summary>
-        public string Command { get; }
+        public string Command { get; set; }
 
         /// <summary>
         ///     Additional parameters supplied with the message.
         /// </summary>
-        public string[] Parameters { get; }
+        public List<string> Parameters { get; set; }
 
         /// <summary>
         ///     The message tags.
         /// </summary>
-        public KeyValuePair<string, string>[] Tags { get; }
+        public Dictionary<string, string> Tags { get; set; }
 
         /// <summary>
         ///     The message timestamp in ISO 8601 format.

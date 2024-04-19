@@ -9,7 +9,7 @@ namespace ChatSharp.Events
     {
         internal IrcNoticeEventArgs(IrcMessage message)
         {
-            if (message.Parameters.Length != 2)
+            if (message.Parameters.Count != 2)
                 throw new IrcProtocolException("NOTICE was delivered in incorrect format");
             Message = message;
         }
@@ -29,6 +29,6 @@ namespace ChatSharp.Events
         ///     The source of the notice (often a user).
         /// </summary>
         /// <value>The source.</value>
-        public string Source => Message.Prefix;
+        public string Source => Message.Source;
     }
 }

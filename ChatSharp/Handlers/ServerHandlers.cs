@@ -6,8 +6,7 @@ namespace ChatSharp.Handlers
     {
         public static void HandleISupport(IrcClient client, IrcMessage message)
         {
-            if (client.ServerInfo == null)
-                client.ServerInfo = new ServerInfo();
+            client.ServerInfo ??= new ServerInfo();
             foreach (var item in message.Parameters)
             {
                 string key, value;
@@ -86,12 +85,11 @@ namespace ChatSharp.Handlers
                             break;
                     }
                 else
-                    switch (key.ToUpper())
+                    client.ServerInfo.ExtendedWho = key.ToUpper() switch
                     {
-                        case "WHOX":
-                            client.ServerInfo.ExtendedWho = true;
-                            break;
-                    }
+                        "WHOX" => true,
+                        _ => client.ServerInfo.ExtendedWho
+                    };
             }
 
             client.OnServerInfoReceived(new SupportsEventArgs(client.ServerInfo));
@@ -101,9 +99,8 @@ namespace ChatSharp.Handlers
         {
             // 004 sendak.freenode.net ircd-seven-1.1.3 DOQRSZaghilopswz CFILMPQbcefgijklmnopqrstvz bkloveqjfI
             // TODO: Figure out how to properly handle this message
-            if (client.ServerInfo == null)
-                client.ServerInfo = new ServerInfo();
-            if (message.Parameters.Length >= 5)
+            client.ServerInfo ??= new ServerInfo();
+            if (message.Parameters.Count >= 5)
                 foreach (var c in message.Parameters[4])
                     if (!client.ServerInfo.SupportedChannelModes.ChannelUserModes.Contains(c))
                         client.ServerInfo.SupportedChannelModes.ChannelUserModes += c.ToString();

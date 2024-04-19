@@ -115,8 +115,8 @@ namespace ChatSharp
         public List<char?> GetModesForNick(string nick)
         {
             var supportedPrefixes = Prefixes[1];
-            List<char?> modeList = new List<char?>();
-            List<char> nickPrefixes = new List<char>();
+            var modeList = new List<char?>();
+            var nickPrefixes = new List<char>();
 
             foreach (var prefix in supportedPrefixes)
                 if (nick.Contains(prefix))

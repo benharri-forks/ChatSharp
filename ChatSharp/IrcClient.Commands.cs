@@ -85,9 +85,9 @@ namespace ChatSharp
             if (Channels.Contains(channel))
                 throw new InvalidOperationException("Client is already present in channel.");
 
-            var joinCmd = string.Format("JOIN {0}", channel);
+            var joinCmd = $"JOIN {channel}";
             if (!string.IsNullOrEmpty(key))
-                joinCmd += string.Format(" {0}", key);
+                joinCmd += $" {key}";
 
             SendRawMessage(joinCmd, channel);
 
@@ -187,7 +187,7 @@ namespace ChatSharp
 
                 var whoQuery = string.Format("WHO {0} {1}%{2},{3}", target, flags.AsString(), _fields.AsString(),
                     queryType);
-                var queryKey = string.Format("WHO {0} {1} {2:D}", target, queryType, _fields);
+                var queryKey = $"WHO {target} {queryType} {_fields:D}";
 
                 RequestManager.QueueOperation(queryKey,
                     new RequestOperation(whox, ro => { callback?.Invoke((List<ExtendedWho>)ro.State); }));
@@ -197,7 +197,7 @@ namespace ChatSharp
             {
                 var whox = new List<ExtendedWho>();
 
-                var whoQuery = string.Format("WHO {0}", target);
+                var whoQuery = $"WHO {target}";
 
                 RequestManager.QueueOperation(whoQuery,
                     new RequestOperation(whox, ro => { callback?.Invoke((List<ExtendedWho>)ro.State); }));

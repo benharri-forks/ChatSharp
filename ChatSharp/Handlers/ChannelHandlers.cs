@@ -10,7 +10,7 @@ namespace ChatSharp.Handlers
     {
         public static void HandleJoin(IrcClient client, IrcMessage message)
         {
-            var user = client.Users.GetOrAdd(message.Prefix);
+            var user = client.Users.GetOrAdd(message.Source);
             var channel = client.Channels.GetOrAdd(message.Parameters[0]);
 
             if (channel != null)
@@ -51,7 +51,7 @@ namespace ChatSharp.Handlers
             if (!client.Channels.Contains(message.Parameters[0]))
                 return; // we aren't in this channel, ignore
 
-            var user = client.Users.Get(message.Prefix);
+            var user = client.Users.Get(message.Source);
             var channel = client.Channels[message.Parameters[0]];
 
             if (user.Channels.Contains(channel))
@@ -92,10 +92,7 @@ namespace ChatSharp.Handlers
 
                     if (!user.Channels.Contains(channel))
                         user.Channels.Add(channel);
-                    if (!user.ChannelModes.ContainsKey(channel))
-                        user.ChannelModes.Add(channel, modes);
-                    else
-                        user.ChannelModes[channel] = modes;
+                    user.ChannelModes[channel] = modes;
                 }
             }
             else
@@ -117,10 +114,7 @@ namespace ChatSharp.Handlers
 
                     if (!user.Channels.Contains(channel))
                         user.Channels.Add(channel);
-                    if (!user.ChannelModes.ContainsKey(channel))
-                        user.ChannelModes.Add(channel, modes);
-                    else
-                        user.ChannelModes[channel] = modes;
+                    user.ChannelModes[channel] = modes;
                 }
             }
         }
@@ -165,7 +159,7 @@ namespace ChatSharp.Handlers
             var kicked = channel.Users[message.Parameters[1]];
             if (kicked.Channels.Contains(channel))
                 kicked.Channels.Remove(channel);
-            client.OnUserKicked(new KickEventArgs(channel, new IrcUser(message.Prefix),
+            client.OnUserKicked(new KickEventArgs(channel, new IrcUser(message.Source),
                 kicked, message.Parameters[2]));
         }
     }

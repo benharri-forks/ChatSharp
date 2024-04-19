@@ -12,7 +12,7 @@ namespace ChatSharp
             Source = message.Parameters[0];
             Message = message.Parameters[1];
 
-            User = client.Users.GetOrAdd(message.Prefix);
+            User = client.Users.GetOrAdd(message.Source);
             if (serverInfo.ChannelTypes.Any(c => Source.StartsWith(c.ToString())))
                 IsChannelMessage = true;
             else

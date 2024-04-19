@@ -9,7 +9,7 @@ namespace ChatSharp.Handlers
     {
         public static void HandleWhoIsUser(IrcClient client, IrcMessage message)
         {
-            if (message.Parameters != null && message.Parameters.Length >= 6)
+            if (message.Parameters != null && message.Parameters.Count >= 6)
             {
                 var whois = (WhoIs)client.RequestManager.PeekOperation("WHOIS " + message.Parameters[1]).State;
                 whois.User.Nick = message.Parameters[1];
@@ -212,7 +212,7 @@ namespace ChatSharp.Handlers
                         whox.User.RealName = message.Parameters[fieldIdx];
                         fieldIdx++;
                     }
-                } while (fieldIdx < message.Parameters.Length - 1);
+                } while (fieldIdx < message.Parameters.Count - 1);
 
                 whoxList.Add(whox);
             }
@@ -255,13 +255,13 @@ namespace ChatSharp.Handlers
 
         public static void HandleAccount(IrcClient client, IrcMessage message)
         {
-            var user = client.Users.GetOrAdd(message.Prefix);
+            var user = client.Users.GetOrAdd(message.Source);
             user.Account = message.Parameters[0];
         }
 
         public static void HandleChangeHost(IrcClient client, IrcMessage message)
         {
-            var user = client.Users.Get(message.Prefix);
+            var user = client.Users.Get(message.Source);
 
             // Only handle CHGHOST for users we know
             if (user != null)

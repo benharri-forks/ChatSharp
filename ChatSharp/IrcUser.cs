@@ -8,6 +8,7 @@ namespace ChatSharp
     /// </summary>
     public class IrcUser : IEquatable<IrcUser>
     {
+        private readonly string _source;
         internal IrcUser()
         {
             Channels = new ChannelCollection();
@@ -18,18 +19,29 @@ namespace ChatSharp
         /// <summary>
         ///     Constructs an IrcUser given a hostmask or nick.
         /// </summary>
-        public IrcUser(string host) : this()
+        public IrcUser(string source) : this()
         {
-            if (!host.Contains("@") && !host.Contains("!"))
+            if (source == null) return;
+
+            _source = source;
+
+            if (source.Contains('@', StringComparison.Ordinal))
             {
-                Nick = host;
+                var split = source.Split('@');
+
+                Nick = split[0];
+                Hostname = split[1];
             }
             else
             {
-                var mask = host.Split('@', '!');
-                Nick = mask[0];
-                User = mask[1];
-                Hostname = mask.Length <= 2 ? "" : mask[2];
+                Nick = source;
+            }
+
+            if (Nick.Contains('!', StringComparison.Ordinal))
+            {
+                var userSplit = Nick.Split('!');
+                Nick = userSplit[0];
+                User = userSplit[1];
             }
         }
 
@@ -42,22 +54,6 @@ namespace ChatSharp
             User = user;
             RealName = User;
             Mode = string.Empty;
-        }
-
-        /// <summary>
-        ///     Constructs an IRC user given a nick, user, and password.
-        /// </summary>
-        public IrcUser(string nick, string user, string password) : this(nick, user)
-        {
-            Password = password;
-        }
-
-        /// <summary>
-        ///     Constructs an IRC user given a nick, user, password, and real name.
-        /// </summary>
-        public IrcUser(string nick, string user, string password, string realName) : this(nick, user, password)
-        {
-            RealName = realName;
         }
 
         /// <summary>
@@ -110,14 +106,15 @@ namespace ChatSharp
         /// <summary>
         ///     This user's hostmask (nick!user@host).
         /// </summary>
-        public string Hostmask => Nick + "!" + User + "@" + Hostname;
+        public string Hostmask => $"{Nick}!{User}@{Hostname}";
 
         /// <summary>
         ///     True if this user is equal to another (compares hostmasks).
         /// </summary>
         public bool Equals(IrcUser other)
         {
-            return other.Hostmask == Hostmask;
+            if (other == null) return false;
+            return other._source == _source;
         }
 
         /// <summary>
@@ -143,8 +140,7 @@ namespace ChatSharp
         /// </summary>
         public static bool Match(string mask, string value)
         {
-            if (value == null)
-                value = string.Empty;
+            value ??= string.Empty;
             var i = 0;
             var j = 0;
             for (; j < value.Length && i < mask.Length; j++)
@@ -179,9 +175,7 @@ namespace ChatSharp
         /// </summary>
         public override bool Equals(object obj)
         {
-            if (obj is IrcUser user)
-                return Equals(user);
-            return false;
+            return Equals(obj as IrcUser);
         }
 
         /// <summary>
@@ -189,7 +183,7 @@ namespace ChatSharp
         /// </summary>
         public override int GetHashCode()
         {
-            return Hostmask.GetHashCode();
+            return _source.GetHashCode(StringComparison.Ordinal);
         }
 
         /// <summary>
@@ -197,7 +191,7 @@ namespace ChatSharp
         /// </summary>
         public override string ToString()
         {
-            return Hostmask;
+            return _source;
         }
     }
 }

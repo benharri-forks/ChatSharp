@@ -59,7 +59,7 @@ namespace ChatSharp.Handlers
                     // Check if the enabled capabilities count is the same as the ones
                     // acknowledged by the server.
                     if (client.IsNegotiatingCapabilities &&
-                        client.Capabilities.Enabled.Count() == acceptedCaps.Count() && !client.IsAuthenticatingSasl)
+                        client.Capabilities.Enabled.Count() == acceptedCaps.Length && !client.IsAuthenticatingSasl)
                     {
                         client.SendRawMessage("CAP END");
                         client.IsNegotiatingCapabilities = false;
@@ -76,7 +76,7 @@ namespace ChatSharp.Handlers
                     // Check if the disabled capabilities count is the same as the ones
                     // rejected by the server.
                     if (client.IsNegotiatingCapabilities &&
-                        client.Capabilities.Disabled.Count() == rejectedCaps.Count())
+                        client.Capabilities.Disabled.Count() == rejectedCaps.Length)
                     {
                         client.SendRawMessage("CAP END");
                         client.IsNegotiatingCapabilities = false;
@@ -103,7 +103,7 @@ namespace ChatSharp.Handlers
                     wantCaps.AddRange(newCaps.Where(cap =>
                         client.Capabilities.Contains(cap) && !client.Capabilities[cap].IsEnabled));
 
-                    client.SendRawMessage(string.Format("CAP REQ :{0}", string.Join(" ", wantCaps)));
+                    client.SendRawMessage($"CAP REQ :{string.Join(" ", wantCaps)}");
                     break;
                 case "DEL":
                     var disabledCaps = message.Parameters[2].Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries)
