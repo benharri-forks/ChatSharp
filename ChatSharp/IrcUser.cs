@@ -9,6 +9,7 @@ namespace ChatSharp
     public class IrcUser : IEquatable<IrcUser>
     {
         private readonly string _source;
+
         internal IrcUser()
         {
             Channels = new ChannelCollection();

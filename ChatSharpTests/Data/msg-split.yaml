@@ -329,15 +329,15 @@ tests:
       source: "SomeOp"
       verb: "MODE"
       params:
-      - "#channel"
-      - "+i"
+        - "#channel"
+        - "+i"
 
   - input: ":SomeOp MODE #channel +oo SomeUser :AnotherUser"
     atoms:
       source: "SomeOp"
       verb: "MODE"
       params:
-      - "#channel"
-      - "+oo"
-      - "SomeUser"
-      - "AnotherUser"
+        - "#channel"
+        - "+oo"
+        - "SomeUser"
+        - "AnotherUser"

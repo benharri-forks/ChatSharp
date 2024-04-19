@@ -24,7 +24,7 @@ public class ParsingTests
         foreach (var test in LoadYaml<SplitModel>("Data/msg-split.yaml").Tests)
         {
             var message = new IrcMessage(test.Input);
-            var atoms  = test.Atoms;
+            var atoms = test.Atoms;
 
             Assert.AreEqual(atoms.Verb.ToUpper(CultureInfo.InvariantCulture), message.Command,
                 $"command failed on: '{test.Input}'");
@@ -48,7 +48,7 @@ public class ParsingTests
                 Command = atoms.Verb,
                 Parameters = atoms.Params,
                 Source = atoms.Source,
-                Tags = atoms.Tags,
+                Tags = atoms.Tags
             }.Format();
 
             Assert.IsTrue(test.Matches.Contains(line), test.Description);

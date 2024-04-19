@@ -6,26 +6,25 @@ using System.Text;
 
 namespace ChatSharp
 {
-    
     /// <summary>
     ///     Represents a raw IRC message. This is a low-level construct - PrivateMessage is used
     ///     to represent messages sent from users.
     /// </summary>
     public class IrcMessage : IEquatable<IrcMessage>
     {
-        private static readonly string[] TagUnescaped = {"\\", " ", ";", "\r", "\n"};
-        private static readonly string[] TagEscaped = {@"\\", "\\s", "\\:", "\\r", "\\n"};
-        
+        private static readonly string[] TagUnescaped = { "\\", " ", ";", "\r", "\n" };
+        private static readonly string[] TagEscaped = { @"\\", "\\s", "\\:", "\\r", "\\n" };
+
         public IrcMessage()
         {
         }
-        
+
         public IrcMessage(string command, params string[] parameters)
         {
             Command = command.ToUpperInvariant();
-            Parameters  = parameters.ToList();
+            Parameters = parameters.ToList();
         }
-        
+
         /// <summary>
         ///     Parse and tokenize an IRC message, given the raw message from the server.
         /// </summary>
@@ -46,7 +45,7 @@ namespace ChatSharp
                 foreach (var part in messageTags[1..].Split(';'))
                     if (part.Contains('=', StringComparison.Ordinal))
                     {
-                        split          = part.Split('=', 2);
+                        split = part.Split('=', 2);
                         Tags[split[0]] = UnescapeTag(split[1]);
                     }
                     else
@@ -58,8 +57,8 @@ namespace ChatSharp
             string trailing;
             if (line.Contains(" :", StringComparison.Ordinal))
             {
-                split    = line.Split(" :", 2);
-                line     = split[0];
+                split = line.Split(" :", 2);
+                line = split[0];
                 trailing = split[1];
             }
             else
@@ -69,7 +68,7 @@ namespace ChatSharp
 
             Parameters = line.Contains(' ', StringComparison.Ordinal)
                 ? line.Split(' ', StringSplitOptions.RemoveEmptyEntries).ToList()
-                : new List<string> {line};
+                : new List<string> { line };
 
             if (Parameters[0].StartsWith(':'))
             {
@@ -101,14 +100,39 @@ namespace ChatSharp
                 Timestamp = new Timestamp(tag.Value);
             }
         }
-        
+
+        /// <summary>
+        ///     The message source.
+        /// </summary>
+        public string Source { get; set; }
+
+        /// <summary>
+        ///     The message command.
+        /// </summary>
+        public string Command { get; set; }
+
+        /// <summary>
+        ///     Additional parameters supplied with the message.
+        /// </summary>
+        public List<string> Parameters { get; set; }
+
+        /// <summary>
+        ///     The message tags.
+        /// </summary>
+        public Dictionary<string, string> Tags { get; set; }
+
+        /// <summary>
+        ///     The message timestamp in ISO 8601 format.
+        /// </summary>
+        public Timestamp Timestamp { get; }
+
         public bool Equals(IrcMessage other)
         {
             if (other == null) return false;
 
             return Format() == other.Format();
         }
-        
+
         public override int GetHashCode()
         {
             return Format().GetHashCode(StringComparison.Ordinal);
@@ -119,7 +143,7 @@ namespace ChatSharp
             return Equals(obj as IrcMessage);
         }
 
-        
+
         /// <summary>
         ///     Unescape ircv3 tag
         /// </summary>
@@ -169,7 +193,7 @@ namespace ChatSharp
 
             return val;
         }
-        
+
         /// <summary>
         ///     Formats self <see cref="IrcMessage" /> as a standards-compliant IRC line
         /// </summary>
@@ -195,7 +219,7 @@ namespace ChatSharp
 
             if (Parameters != null && Parameters.Any())
             {
-                var last        = Parameters[^1];
+                var last = Parameters[^1];
                 var withoutLast = Parameters.SkipLast(1).ToList();
 
                 foreach (var p in withoutLast)
@@ -218,30 +242,5 @@ namespace ChatSharp
 
             return string.Join(" ", outs);
         }
-
-        /// <summary>
-        ///     The message source.
-        /// </summary>
-        public string Source { get; set; }
-
-        /// <summary>
-        ///     The message command.
-        /// </summary>
-        public string Command { get; set; }
-
-        /// <summary>
-        ///     Additional parameters supplied with the message.
-        /// </summary>
-        public List<string> Parameters { get; set; }
-
-        /// <summary>
-        ///     The message tags.
-        /// </summary>
-        public Dictionary<string, string> Tags { get; set; }
-
-        /// <summary>
-        ///     The message timestamp in ISO 8601 format.
-        /// </summary>
-        public Timestamp Timestamp { get; }
     }
 }

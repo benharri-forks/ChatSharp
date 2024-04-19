@@ -19,6 +19,7 @@ client.ChannelMessageReceived += (s, e) =>
         var target = e.PrivateMessage.Message[5..];
         client.WhoIs(target, whois => channel.ChangeMode($"+b *!*@{whois.User.Hostname}"));
     }
+
     Console.WriteLine($"> {e.IrcMessage.Format()}");
 };
 

@@ -6,7 +6,8 @@ namespace ChatSharp
 {
     internal class RequestManager
     {
-        internal Dictionary<string, RequestOperation> PendingOperations { get; } = new Dictionary<string, RequestOperation>();
+        internal Dictionary<string, RequestOperation> PendingOperations { get; } =
+            new Dictionary<string, RequestOperation>();
 
         public void QueueOperation(string key, RequestOperation operation)
         {

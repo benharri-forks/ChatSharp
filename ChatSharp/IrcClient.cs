@@ -322,10 +322,7 @@ namespace ChatSharp
         {
             OnRawMessageReceived(new RawMessageEventArgs(rawMessage, false));
             var message = new IrcMessage(rawMessage);
-            if (Handlers.TryGetValue(message.Command, out var handler))
-            {
-                handler(this, message);
-            }
+            if (Handlers.TryGetValue(message.Command, out var handler)) handler(this, message);
         }
 
         /// <summary>
